@@ -1,0 +1,25 @@
+[package]
+name = "k4status"
+version = "0.1.0"
+authors = ["Max <max@karl.wf>"]
+edition = "2021"
+license = "MIT"
+readme = "README.md"
+description = "Space API for K4CG"
+keywords = ["spaceapi", "hackspace", "k4cg"]
+
+[dependencies]
+spaceapi = "0.9.0"
+influxdb = "0.7.2"
+serde = "1.0.209"
+serde_json = "1.0.127"
+axum = "0.7.5"
+tokio = { version = "1.39.3", features = ["rt-multi-thread", "fs", "sync"] }
+chrono = "0.4.38"
+thiserror = "1.0.63"
+log = "0.4.22"
+simple_logger = { version = "5.0.0", default-features = false, features = ["timestamps"] }
+
+[profile.release]
+strip = true
+lto = true

@@ -1,0 +1,37 @@
+{
+    "database": {
+        "connection": "http://localhost:8086",
+        "database": "...",
+        "username": "...",
+        "password": "..."
+    },
+    "server": {
+        "hostname": "localhost",
+        "port": 3000
+    },
+    "sensors": {
+        "door": {
+            "name": "",
+            "unit": "state",
+            "validity": 0
+        },
+        "temperature": {
+            "name": [
+                { "id": "", "location": "" }
+            ],
+            "unit": "°C",
+            "validity": 7200
+        },
+        "humidity": {
+            "name": [
+                { "id": "", "location": "" }
+            ],
+            "unit": "%",
+            "validity": 7200
+        }
+    },
+    "cache_time": {
+        "status.json": 15,
+        "health": 15
+    }
+}
