@@ -5,6 +5,12 @@ The document itself is provided as a template to which the latest sensor values 
 The sensor values are collected from an InfluxDB that will be continiously updated from HomeAssistant.
 
 
+## Endpoints
+
+- GET `/status.json`: Request the current space status compliant to the Space API JSON schema.
+- GET `/health`: Get health information, basically checks the connection to the database. Returns 200 if everything is ok, and 418 in case the connection could not be established.
+
+
 ## Configuration
 
 The configuration takes place within the file `config.json`:
@@ -62,6 +68,8 @@ The template for the Space API JSON document is defined within the file `status.
 
 Building the software requires a Rust toolchain to be installed.
 If so, the build process is as easy as `cargo build [--release]`.
+Currently, the build defaults to x64 with musl on Linux (see `.cargo/config.toml`).
+You may override it by providing the necessary arguments to cargo.
 
-Two minimalistic tests are provided to check wether the configuration and the tempalte files can be parsed.
+Two minimalistic tests are provided to check wether the configuration and the template files can be parsed.
 Run `cargo test` to execute the tests.
