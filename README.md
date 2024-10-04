@@ -68,8 +68,6 @@ The template for the Space API JSON document is defined within the file `status.
 
 Building the software requires a Rust toolchain to be installed.
 If so, the build process is as easy as `cargo build [--release]`.
-Currently, the build defaults to x64 with musl on Linux (see `.cargo/config.toml`).
-You may override it by providing the necessary arguments to cargo.
 
 Two minimalistic tests are provided to check wether the configuration and the template files can be parsed.
 Run `cargo test` to execute the tests.

@@ -14,10 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Prerequisites
-      run: |
-        sudo apt install -y musl-tools musl-dev
-        rustup target add x86_64-unknown-linux-musl
     - name: Run build
       run: cargo build
     - name: Run tests
