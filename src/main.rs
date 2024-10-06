@@ -8,16 +8,16 @@ mod template;
 
 #[derive(Error, Debug, PartialEq, Eq)]
 pub enum StatusError {
-    #[error("Failed to interact with database")]
+    #[error("Failed to interact with database: {0}")]
     Database(String),
 
-    #[error("Failed to parse template file")]
+    #[error("Failed to parse template file: {0}")]
     Template(String),
 
-    #[error("Failed to parse configuration file")]
+    #[error("Failed to parse configuration file: {0}")]
     Configuration(String),
 
-    #[error("Failed to start server")]
+    #[error("Failed to start server: {0}")]
     Server(String),
 }
 

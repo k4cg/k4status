@@ -27,7 +27,7 @@ struct QueryResults {
 struct QueryResult {
     #[allow(dead_code)]
     pub statement_id: u64,
-    pub series: Vec<QuerySeries>,
+    pub series: Option<Vec<QuerySeries>>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -110,24 +110,28 @@ impl Database {
             .await
             .map_err(|e| StatusError::Database(e.to_string()))?;
 
-        let results: QueryResults =
-            serde_json::from_str(&results_raw).map_err(|e| StatusError::Database(e.to_string()))?;
+        let results: QueryResults = serde_json::from_str(&results_raw)
+            .map_err(|e| StatusError::Database(format!("serde '{}'", e)))?;
 
         let values = results
             .results
             .first()
             .ok_or(StatusError::Database(
-                "Unexpected response: no results".into(),
+                "unexpected response, no results".into(),
             ))?
             .series
+            .as_ref()
+            .ok_or(StatusError::Database(
+                "unexpected response, statements result does not contain any data".into(),
+            ))?
             .first()
             .ok_or(StatusError::Database(
-                "Unexpected response: no series".into(),
+                "unexpected response, no series".into(),
             ))?
             .values
             .first()
             .ok_or(StatusError::Database(
-                "Unexpected response: no values".into(),
+                "unexpected response, no values".into(),
             ))?;
 
         let time: DateTime<Utc> = DateTime::parse_from_rfc3339(&values.0)

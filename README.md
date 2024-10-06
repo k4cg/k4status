@@ -63,6 +63,8 @@ The configuration takes place within the file `config.json`:
 
 The template for the Space API JSON document is defined within the file `status.json`.
 
+By default, the app sets the log level to `info`.
+You may adjust it to your needs by using the environment variable `RUST_LOG`.
 
 ## Build
 

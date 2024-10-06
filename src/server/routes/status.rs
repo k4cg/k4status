@@ -85,20 +85,33 @@ async fn get_temperature(
     let mut sensors: Vec<sensors::TemperatureSensor> = Vec::new();
 
     for sensor in config.temperature.name.iter() {
-        if let Ok(temp) = database
+        match database
             .get_temperature(&sensor.id, &config.temperature.unit)
             .await
         {
-            if let Some(val) = validate_time(temp, config.temperature.validity) {
-                sensors.push(sensors::TemperatureSensor {
-                    value: val,
+            Ok(temp) => match validate_time(&temp, config.temperature.validity) {
+                Some(value) => sensors.push(sensors::TemperatureSensor {
+                    value: *value,
                     unit: config.temperature.unit.clone(),
                     metadata: sensors::SensorMetadataWithLocation {
                         location: sensor.location.clone(),
                         ..Default::default()
                     },
-                });
-            }
+                }),
+                None => log::warn!(
+                    "Latest sensor measurement too old: id='{}' unit='{}' sample_time='{}' validity='{}'",
+                    sensor.id,
+                    config.temperature.unit,
+                    temp.time,
+                    config.temperature.validity
+                ),
+            },
+            Err(err) => log::warn!(
+                "Failed to query temperature: id='{}' unit='{}' ({})",
+                sensor.id,
+                config.temperature.unit,
+                err
+            ),
         }
     }
 
@@ -114,20 +127,33 @@ async fn get_humidity(
     let mut sensors: Vec<sensors::HumiditySensor> = Vec::new();
 
     for sensor in config.humidity.name.iter() {
-        if let Ok(temp) = database
+        match database
             .get_humidity(&sensor.id, &config.humidity.unit)
             .await
         {
-            if let Some(val) = validate_time(temp, config.humidity.validity) {
-                sensors.push(sensors::HumiditySensor {
-                    value: val as f64,
+            Ok(temp) => match validate_time(&temp, config.humidity.validity) {
+                Some(value) => sensors.push(sensors::HumiditySensor {
+                    value: *value as f64,
                     unit: config.humidity.unit.clone(),
                     metadata: sensors::SensorMetadataWithLocation {
                         location: sensor.location.clone(),
                         ..Default::default()
                     },
-                });
-            }
+                }),
+                None => log::warn!(
+                    "Latest sensor measurement too old: id='{}' unit='{}' sample_time='{}' validity='{}'",
+                    sensor.id,
+                    config.humidity.unit,
+                    temp.time,
+                    config.humidity.validity
+                ),
+            },
+            Err(err) => log::warn!(
+                "Failed to query humidity: id='{}' unit='{}' ({})",
+                sensor.id,
+                config.humidity.unit,
+                err
+            ),
         }
     }
 
@@ -144,18 +170,18 @@ async fn get_door(
         .get_door_status(&config.door.name, &config.door.unit)
         .await
     {
-        Ok(door) => validate_time(door, config.door.validity).map(|val| spaceapi::State {
-            open: Some(val),
+        Ok(door) => validate_time(&door, config.door.validity).map(|val| spaceapi::State {
+            open: Some(*val),
             ..Default::default()
         }),
         Err(_) => None,
     }
 }
 
-fn validate_time<T>(tv: TimeValue<T>, validity: chrono::TimeDelta) -> Option<T> {
+fn validate_time<T>(tv: &TimeValue<T>, validity: chrono::TimeDelta) -> Option<&T> {
     let start = chrono::Utc::now() - validity;
     if tv.time > start || validity.is_zero() {
-        Some(tv.value)
+        Some(&tv.value)
     } else {
         None
     }
