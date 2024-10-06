@@ -42,22 +42,30 @@ pub struct Server {
 
 #[derive(Deserialize, Clone)]
 pub struct Sensors {
-    pub door: SensorDescription<String>,
-    pub temperature: SensorDescription<Vec<SensorName>>,
-    pub humidity: SensorDescription<Vec<SensorName>>,
+    pub door: DoorSettings,
+    pub temperature: SensorSettings,
+    pub humidity: SensorSettings,
 }
 
 #[derive(Deserialize, Clone)]
-pub struct SensorDescription<T> {
-    pub name: T,
+pub struct DoorSettings {
+    pub entity: String,
     pub unit: String,
     #[serde(deserialize_with = "parse_timedelta")]
     pub validity: chrono::TimeDelta,
 }
 
 #[derive(Deserialize, Clone)]
-pub struct SensorName {
-    pub id: String,
+pub struct SensorSettings {
+    pub id: Vec<SensorIdentification>,
+    pub unit: String,
+    #[serde(deserialize_with = "parse_timedelta")]
+    pub validity: chrono::TimeDelta,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct SensorIdentification {
+    pub entity: String,
     pub location: String,
 }
 

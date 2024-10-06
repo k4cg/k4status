@@ -29,25 +29,25 @@ The configuration takes place within the file `config.json`:
     },
     "sensors": {
         "door": {
-            "name": "", // Name/ID of sensor within database
+            "entity": "", // Entity ID of sensor within database
             "unit": "state", // Unit of measurement within database
             "validity": 0 // Period of validity in seconds, set to 0 to disable check
         },
         "temperature": {
-            "name": [ // List of sensors
+            "id": [ // List of sensors
                 {
-                    "id": "", // Name/ID of sensor within database
-                    "location": "" // Location of sensor
+                    "entity": "", // Entity ID of sensor within database
+                    "location": "" //  Human readable location of sensor
                 }
             ],
             "unit": "°C", // Unit of measurements within database
             "validity": 0 // Period of validity in seconds, set to 0 to disable check
         },
         "humidity": {
-            "name": [ // List of sensors
+            "id": [ // List of sensors
                 {
-                    "id": "", // Name/ID of sensor within database
-                    "location": "" // Location of sensor
+                    "entity": "", // Entity ID of sensor within database
+                    "location": "" // Human readable location of sensor
                 }
             ],
             "unit": "%", // Unit of measurement within database

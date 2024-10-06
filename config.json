@@ -1,9 +1,9 @@
 {
     "database": {
-        "connection": "http://localhost:8086",
-        "database": "...",
-        "username": "...",
-        "password": "..."
+        "connection": "",
+        "database": "",
+        "username": "",
+        "password": ""
     },
     "server": {
         "hostname": "localhost",
@@ -11,27 +11,33 @@
     },
     "sensors": {
         "door": {
-            "name": "",
+            "entity": "",
             "unit": "state",
             "validity": 0
         },
         "temperature": {
-            "name": [
-                { "id": "", "location": "" }
+            "id": [
+                {
+                    "entity": "",
+                    "location": ""
+                }
             ],
             "unit": "°C",
-            "validity": 7200
+            "validity": 0
         },
         "humidity": {
-            "name": [
-                { "id": "", "location": "" }
+            "id": [
+                {
+                    "entity": "",
+                    "location": ""
+                }
             ],
             "unit": "%",
-            "validity": 7200
+            "validity": 0
         }
     },
     "cache_time": {
-        "status.json": 15,
-        "health": 15
+        "status.json": 0,
+        "health": 0
     }
 }

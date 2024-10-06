@@ -84,9 +84,9 @@ async fn get_temperature(
 
     let mut sensors: Vec<sensors::TemperatureSensor> = Vec::new();
 
-    for sensor in config.temperature.name.iter() {
+    for sensor in config.temperature.id.iter() {
         match database
-            .get_temperature(&sensor.id, &config.temperature.unit)
+            .get_temperature(&sensor.entity, &config.temperature.unit)
             .await
         {
             Ok(temp) => match validate_time(&temp, config.temperature.validity) {
@@ -100,7 +100,7 @@ async fn get_temperature(
                 }),
                 None => log::warn!(
                     "Latest sensor measurement too old: id='{}' unit='{}' sample_time='{}' validity='{}'",
-                    sensor.id,
+                    sensor.entity,
                     config.temperature.unit,
                     temp.time,
                     config.temperature.validity
@@ -108,7 +108,7 @@ async fn get_temperature(
             },
             Err(err) => log::warn!(
                 "Failed to query temperature: id='{}' unit='{}' ({})",
-                sensor.id,
+                sensor.entity,
                 config.temperature.unit,
                 err
             ),
@@ -126,9 +126,9 @@ async fn get_humidity(
 
     let mut sensors: Vec<sensors::HumiditySensor> = Vec::new();
 
-    for sensor in config.humidity.name.iter() {
+    for sensor in config.humidity.id.iter() {
         match database
-            .get_humidity(&sensor.id, &config.humidity.unit)
+            .get_humidity(&sensor.entity, &config.humidity.unit)
             .await
         {
             Ok(temp) => match validate_time(&temp, config.humidity.validity) {
@@ -142,7 +142,7 @@ async fn get_humidity(
                 }),
                 None => log::warn!(
                     "Latest sensor measurement too old: id='{}' unit='{}' sample_time='{}' validity='{}'",
-                    sensor.id,
+                    sensor.entity,
                     config.humidity.unit,
                     temp.time,
                     config.humidity.validity
@@ -150,7 +150,7 @@ async fn get_humidity(
             },
             Err(err) => log::warn!(
                 "Failed to query humidity: id='{}' unit='{}' ({})",
-                sensor.id,
+                sensor.entity,
                 config.humidity.unit,
                 err
             ),
@@ -167,7 +167,7 @@ async fn get_door(
     log::debug!("Query door status");
 
     match database
-        .get_door_status(&config.door.name, &config.door.unit)
+        .get_door_status(&config.door.entity, &config.door.unit)
         .await
     {
         Ok(door) => validate_time(&door, config.door.validity).map(|val| spaceapi::State {
