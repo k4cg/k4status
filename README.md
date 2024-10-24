@@ -61,10 +61,20 @@ The configuration takes place within the file `config.json`:
 }
 ```
 
-The template for the Space API JSON document is defined within the file `status.json`.
+The template for the Space API JSON document is defined within the file `template.json`.
+You may have a look in the Space API specification on how to fill the fields.
 
-By default, the app sets the log level to `info`.
-You may adjust it to your needs by using the environment variable `RUST_LOG`.
+
+## Run
+
+By default, the app will look for both the configuration (`config.json`) and template (`template.json`) files in the current working directory.
+
+In case the files are located somewhere different, you can use the optional commandline arguments to provide the correct paths.
+Just run `./k4status --help` to show their usage.
+
+Next to the file paths, you can adjust the log level.
+You may use the environment variable `RUST_LOG` to configure anything other than the default level `info`.
+
 
 ## Build
 

@@ -1,10 +1,24 @@
 use simple_logger::SimpleLogger;
 use thiserror::Error;
+use clap::Parser;
 
 mod configuration;
 mod database;
 mod server;
 mod template;
+
+const FILE_CONFIG: &str = "config.json";
+const FILE_TEMPLATE: &str = "template.json";
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long, default_value = FILE_CONFIG)]
+    config: String,
+
+    #[arg(short, long, default_value = FILE_TEMPLATE)]
+    template: String,
+}
 
 #[derive(Error, Debug, PartialEq, Eq)]
 pub enum StatusError {
@@ -21,15 +35,14 @@ pub enum StatusError {
     Server(String),
 }
 
-const FILE_CONFIG: &str = "config.json";
-const FILE_TEMPLATE: &str = "status.json";
-
 async fn app() -> Result<(), StatusError> {
-    log::info!("Parse configuration ({})", FILE_CONFIG);
-    let config = configuration::read_config(FILE_CONFIG).await?;
+    let args = Args::parse();
 
-    log::info!("Parse status template ({})", FILE_TEMPLATE);
-    let template = template::read_template(FILE_TEMPLATE).await?;
+    log::info!("Parse configuration ({})", args.config);
+    let config = configuration::read_config(&args.config).await?;
+
+    log::info!("Parse status template ({})", args.template);
+    let template = template::read_template(&args.template).await?;
 
     log::info!("Initialize database connection");
     let database = database::Database::new(&config.database);
