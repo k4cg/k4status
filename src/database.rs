@@ -3,19 +3,9 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use std::vec::Vec;
 
-pub type Temperature = f64;
-pub type Humidity = u8;
-pub type DoorStatus = bool;
-
 #[derive(Clone)]
 pub struct Database {
     client: influxdb::Client,
-}
-
-#[derive(Debug)]
-pub struct TimeValue<T> {
-    pub time: DateTime<Utc>,
-    pub value: T,
 }
 
 #[derive(Deserialize, Clone)]
@@ -55,53 +45,19 @@ impl Database {
             .map_err(|e| StatusError::Database(format!("Failed to connect to database ({})", e)))
     }
 
-    pub async fn get_temperature(
+    pub async fn query_and_extract(
         &self,
         name: &str,
         unit: &str,
-    ) -> Result<TimeValue<Temperature>, StatusError> {
-        let result = self.query_and_extract(name, unit).await?;
+        validity: DateTime<Utc>,
+    ) -> Result<f64, StatusError> {
+        let time = validity
+            .timestamp_nanos_opt()
+            .ok_or(StatusError::Database("DateTime out of range".into()))?;
 
-        Ok(TimeValue {
-            time: result.0,
-            value: result.1,
-        })
-    }
-
-    pub async fn get_humidity(
-        &self,
-        name: &str,
-        unit: &str,
-    ) -> Result<TimeValue<Humidity>, StatusError> {
-        let result = self.query_and_extract(name, unit).await?;
-
-        Ok(TimeValue {
-            time: result.0,
-            value: result.1 as Humidity,
-        })
-    }
-
-    pub async fn get_door_status(
-        &self,
-        name: &str,
-        unit: &str,
-    ) -> Result<TimeValue<DoorStatus>, StatusError> {
-        let result = self.query_and_extract(name, unit).await?;
-
-        Ok(TimeValue {
-            time: result.0,
-            value: result.1 > 0.5,
-        })
-    }
-
-    async fn query_and_extract(
-        &self,
-        name: &str,
-        unit: &str,
-    ) -> Result<(DateTime<Utc>, f64), StatusError> {
         let query = influxdb::ReadQuery::new(format!(
-            r#"SELECT time, value FROM "{}" WHERE entity_id = '{}' ORDER BY time DESC LIMIT 1"#,
-            unit, name
+            r#"SELECT time, value FROM "{}" WHERE (entity_id = '{}' AND time > {}) ORDER BY time DESC LIMIT 1"#,
+            unit, name, time
         ));
 
         let results_raw = self
@@ -134,10 +90,6 @@ impl Database {
                 "unexpected response, no values".into(),
             ))?;
 
-        let time: DateTime<Utc> = DateTime::parse_from_rfc3339(&values.0)
-            .map(|e| e.into())
-            .map_err(|e| StatusError::Database(e.to_string()))?;
-
-        Ok((time, values.1))
+        Ok(values.1)
     }
 }
