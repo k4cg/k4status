@@ -89,7 +89,7 @@ async fn get_temperature(
         .await
         {
             sensors.push(sensors::TemperatureSensor {
-                value,
+                value: value.value,
                 unit: config.temperature.unit.clone(),
                 metadata: sensors::SensorMetadataWithLocation {
                     location: sensor.location.clone(),
@@ -118,7 +118,7 @@ async fn get_humidity(
         .await
         {
             sensors.push(sensors::HumiditySensor {
-                value,
+                value: value.value,
                 unit: config.humidity.unit.clone(),
                 metadata: sensors::SensorMetadataWithLocation {
                     location: sensor.location.clone(),
@@ -143,7 +143,8 @@ async fn get_door(
     )
     .await
     .map(|value| spaceapi::State {
-        open: Some(value > 0.5),
+        open: Some(value.value > 0.5),
+        lastchange: Some(value.time.timestamp() as u64),
         ..Default::default()
     })
 }
@@ -153,7 +154,7 @@ async fn get_value(
     entity: &str,
     unit: &str,
     validity: chrono::TimeDelta,
-) -> Option<f64> {
+) -> Option<database::TimeValue> {
     match database
         .query_and_extract(entity, unit, get_start_time(validity))
         .await

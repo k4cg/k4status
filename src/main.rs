@@ -1,6 +1,6 @@
+use clap::Parser;
 use simple_logger::SimpleLogger;
 use thiserror::Error;
-use clap::Parser;
 
 mod configuration;
 mod database;

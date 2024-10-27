@@ -8,6 +8,12 @@ pub struct Database {
     client: influxdb::Client,
 }
 
+#[derive(Debug)]
+pub struct TimeValue {
+    pub time: DateTime<Utc>,
+    pub value: f64,
+}
+
 #[derive(Deserialize, Clone)]
 struct QueryResults {
     pub results: Vec<QueryResult>,
@@ -50,7 +56,7 @@ impl Database {
         name: &str,
         unit: &str,
         validity: DateTime<Utc>,
-    ) -> Result<f64, StatusError> {
+    ) -> Result<TimeValue, StatusError> {
         let time = validity
             .timestamp_nanos_opt()
             .ok_or(StatusError::Database("DateTime out of range".into()))?;
@@ -90,6 +96,13 @@ impl Database {
                 "unexpected response, no values".into(),
             ))?;
 
-        Ok(values.1)
+        let time: DateTime<Utc> = DateTime::parse_from_rfc3339(&values.0)
+            .map(|e| e.into())
+            .map_err(|e| StatusError::Database(e.to_string()))?;
+
+        Ok(TimeValue {
+            time,
+            value: values.1,
+        })
     }
 }
