@@ -1,5 +1,6 @@
 {
     "api": "0.13",
+    "api_compatibility": ["14"],
     "space": "K4CG",
     "logo": "https://k4cg.org/images/thumb/b/b9/Logo_leiter.png/400px-Logo_leiter.png",
     "url": "https://k4cg.org",
@@ -9,9 +10,8 @@
         "lat": 49.4487901
     },
     "contact": {
-        "twitter": "@k4cg",
+        "mastodon": "@k4cg@chaos.social",
         "email": "info@k4cg.org",
-        "irc": "irc://irc.freenode.net/k4cg",
         "ml": "k4cg@k4cg.org",
         "issue_mail": "info@k4cg.org"
     },
