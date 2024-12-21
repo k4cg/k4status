@@ -46,114 +46,48 @@ pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceS
 }
 
 async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {
-    log::debug!("Update template with new values");
-    let temperature = get_temperature(&appstate.database, &appstate.config.sensors).await;
-    let humidity = get_humidity(&appstate.database, &appstate.config.sensors).await;
-    let co2 = get_carbondioxide(&appstate.database, &appstate.config.sensors).await;
-    let door_status = get_door(&appstate.database, &appstate.config.sensors).await;
+    let temp = get_generic_sensor(&appstate.database, &appstate.config.sensors.temperature).await;
+    let humid = get_generic_sensor(&appstate.database, &appstate.config.sensors.humidity).await;
+    let co2 = get_generic_sensor(&appstate.database, &appstate.config.sensors.carbondioxide).await;
+    let door = get_door(&appstate.database, &appstate.config.sensors.door).await;
 
     let mut template = appstate.template.clone();
+    template.state = door;
 
-    if !temperature.is_empty() || !humidity.is_empty() || !co2.is_empty() {
-        let mut sensors = sensors::Sensors::default();
-        if !temperature.is_empty() {
-            sensors.temperature = temperature;
-        }
-        if !humidity.is_empty() {
-            sensors.humidity = humidity;
-        }
-        if !co2.is_empty() {
-            sensors.carbondioxide = co2;
-        }
-        template.sensors = Some(sensors);
+    if !temp.is_empty() || !humid.is_empty() || !co2.is_empty() {
+        template.sensors = Some(sensors::Sensors {
+            temperature: temp,
+            humidity: humid,
+            carbondioxide: co2,
+            ..Default::default()
+        })
     }
-
-    template.state = door_status;
 
     template
 }
 
-async fn get_temperature(
-    database: &database::Database,
-    config: &configuration::Sensors,
-) -> Vec<sensors::TemperatureSensor> {
-    let mut sensors: Vec<sensors::TemperatureSensor> = Vec::new();
+async fn get_generic_sensor<T>(
+    db: &database::Database,
+    cfg: &configuration::SensorSettings,
+) -> Vec<T>
+where
+    T: From<GenericSensor>,
+{
+    let mut sensors: Vec<T> = Vec::new();
 
-    for sensor in config.temperature.id.iter() {
-        if let Some(value) = get_value(
-            database,
-            &sensor.entity,
-            &config.temperature.unit,
-            config.temperature.validity,
-        )
-        .await
-        {
-            sensors.push(sensors::TemperatureSensor {
-                value: value.value,
-                unit: config.temperature.unit.clone(),
-                metadata: sensors::SensorMetadataWithLocation {
-                    location: sensor.location.clone(),
-                    ..Default::default()
-                },
-            });
-        }
-    }
-
-    sensors
-}
-
-async fn get_humidity(
-    database: &database::Database,
-    config: &configuration::Sensors,
-) -> Vec<sensors::HumiditySensor> {
-    let mut sensors: Vec<sensors::HumiditySensor> = Vec::new();
-
-    for sensor in config.humidity.id.iter() {
-        if let Some(value) = get_value(
-            database,
-            &sensor.entity,
-            &config.humidity.unit,
-            config.humidity.validity,
-        )
-        .await
-        {
-            sensors.push(sensors::HumiditySensor {
-                value: value.value,
-                unit: config.humidity.unit.clone(),
-                metadata: sensors::SensorMetadataWithLocation {
-                    location: sensor.location.clone(),
-                    ..Default::default()
-                },
-            });
-        }
-    }
-
-    sensors
-}
-
-async fn get_carbondioxide(
-    database: &database::Database,
-    config: &configuration::Sensors,
-) -> Vec<sensors::CarbondioxideSensor> {
-    let mut sensors: Vec<sensors::CarbondioxideSensor> = Vec::new();
-
-    for sensor in config.carbondioxide.id.iter() {
-        if let Some(value) = get_value(
-            database,
-            &sensor.entity,
-            &config.carbondioxide.unit,
-            config.carbondioxide.validity,
-        )
-        .await
-        {
-            sensors.push(sensors::CarbondioxideSensor {
-                value: value.value as u64,
-                unit: config.carbondioxide.unit.clone(),
-                metadata: sensors::SensorMetadataWithLocation {
-                    location: sensor.location.clone(),
-                    ..Default::default()
-                },
-            });
+    for sensor in cfg.id.iter() {
+        if let Some(value) = get_value(db, &sensor.entity, &cfg.unit, cfg.validity).await {
+            sensors.push(
+                GenericSensor {
+                    value: value.value,
+                    unit: cfg.unit.clone(),
+                    metadata: sensors::SensorMetadataWithLocation {
+                        location: sensor.location.clone(),
+                        ..Default::default()
+                    },
+                }
+                .into(),
+            );
         }
     }
 
@@ -161,21 +95,16 @@ async fn get_carbondioxide(
 }
 
 async fn get_door(
-    database: &database::Database,
-    config: &configuration::Sensors,
+    db: &database::Database,
+    cfg: &configuration::DoorSettings,
 ) -> Option<spaceapi::State> {
-    get_value(
-        database,
-        &config.door.entity,
-        &config.door.unit,
-        config.door.validity,
-    )
-    .await
-    .map(|value| spaceapi::State {
-        open: Some(value.value > 0.5),
-        lastchange: Some(value.time.timestamp() as u64),
-        ..Default::default()
-    })
+    get_value(db, &cfg.entity, &cfg.unit, cfg.validity)
+        .await
+        .map(|value| spaceapi::State {
+            open: Some(value.value > 0.5),
+            lastchange: Some(value.time.timestamp() as u64),
+            ..Default::default()
+        })
 }
 
 async fn get_value(
@@ -207,5 +136,45 @@ fn get_start_time(validity: chrono::TimeDelta) -> DateTime<Utc> {
         Utc.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap()
     } else {
         Utc::now() - validity
+    }
+}
+
+// There is no definition of a generic sensor in the spaceapi crate.
+// The sensors we currently use share the same data fields but are implemented as seperate types.
+// Therefore we define our own generic type and implement the From trait for the sensors we currently use.
+#[derive(Clone)]
+struct GenericSensor {
+    value: f64,
+    unit: String,
+    metadata: sensors::SensorMetadataWithLocation,
+}
+
+impl From<GenericSensor> for sensors::TemperatureSensor {
+    fn from(entry: GenericSensor) -> sensors::TemperatureSensor {
+        sensors::TemperatureSensor {
+            value: entry.value,
+            unit: entry.unit.clone(),
+            metadata: entry.metadata.clone(),
+        }
+    }
+}
+
+impl From<GenericSensor> for sensors::HumiditySensor {
+    fn from(entry: GenericSensor) -> sensors::HumiditySensor {
+        sensors::HumiditySensor {
+            value: entry.value,
+            unit: entry.unit.clone(),
+            metadata: entry.metadata.clone(),
+        }
+    }
+}
+
+impl From<GenericSensor> for sensors::CarbondioxideSensor {
+    fn from(entry: GenericSensor) -> sensors::CarbondioxideSensor {
+        sensors::CarbondioxideSensor {
+            value: entry.value as u64,
+            unit: entry.unit.clone(),
+            metadata: entry.metadata.clone(),
+        }
     }
 }
