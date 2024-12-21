@@ -1,6 +1,5 @@
 {
-    "api": "0.13",
-    "api_compatibility": ["14"],
+    "api_compatibility": ["14", "15"],
     "space": "K4CG",
     "logo": "https://k4cg.org/images/thumb/b/b9/Logo_leiter.png/400px-Logo_leiter.png",
     "url": "https://k4cg.org",

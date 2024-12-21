@@ -52,6 +52,16 @@ The configuration takes place within the file `config.json`:
             ],
             "unit": "%", // Unit of measurement within database
             "validity": 0 // Period of validity in seconds, set to 0 to disable check
+        },
+        "carbondioxide": {
+            "id": [ // List of sensors
+                {
+                    "entity": "", // Entity ID of sensor within database
+                    "location": "" // Human readable location of sensor
+                }
+            ],
+            "unit": "ppm", // Unit of measurement within database
+            "validity": 0 // Period of validity in seconds, set to 0 to disable check
         }
     },
     "cache_time": {

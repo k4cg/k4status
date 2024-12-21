@@ -9,7 +9,7 @@ description = "Space API for K4CG"
 keywords = ["spaceapi", "hackspace", "k4cg"]
 
 [dependencies]
-spaceapi = "0.9.0"
+spaceapi = { git = "https://github.com/koarlchen/spaceapi-rs", branch = "co2-v15" }
 influxdb = "0.7.2"
 serde = "1.0.216"
 serde_json = "1.0.134"

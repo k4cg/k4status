@@ -49,17 +49,21 @@ async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {
     log::debug!("Update template with new values");
     let temperature = get_temperature(&appstate.database, &appstate.config.sensors).await;
     let humidity = get_humidity(&appstate.database, &appstate.config.sensors).await;
+    let co2 = get_carbondioxide(&appstate.database, &appstate.config.sensors).await;
     let door_status = get_door(&appstate.database, &appstate.config.sensors).await;
 
     let mut template = appstate.template.clone();
 
-    if !temperature.is_empty() || !humidity.is_empty() {
+    if !temperature.is_empty() || !humidity.is_empty() || !co2.is_empty() {
         let mut sensors = sensors::Sensors::default();
         if !temperature.is_empty() {
             sensors.temperature = temperature;
         }
         if !humidity.is_empty() {
             sensors.humidity = humidity;
+        }
+        if !co2.is_empty() {
+            sensors.carbondioxide = co2;
         }
         template.sensors = Some(sensors);
     }
@@ -116,6 +120,35 @@ async fn get_humidity(
             sensors.push(sensors::HumiditySensor {
                 value: value.value,
                 unit: config.humidity.unit.clone(),
+                metadata: sensors::SensorMetadataWithLocation {
+                    location: sensor.location.clone(),
+                    ..Default::default()
+                },
+            });
+        }
+    }
+
+    sensors
+}
+
+async fn get_carbondioxide(
+    database: &database::Database,
+    config: &configuration::Sensors,
+) -> Vec<sensors::CarbondioxideSensor> {
+    let mut sensors: Vec<sensors::CarbondioxideSensor> = Vec::new();
+
+    for sensor in config.carbondioxide.id.iter() {
+        if let Some(value) = get_value(
+            database,
+            &sensor.entity,
+            &config.carbondioxide.unit,
+            config.carbondioxide.validity,
+        )
+        .await
+        {
+            sensors.push(sensors::CarbondioxideSensor {
+                value: value.value as u64,
+                unit: config.carbondioxide.unit.clone(),
                 metadata: sensors::SensorMetadataWithLocation {
                     location: sensor.location.clone(),
                     ..Default::default()

@@ -45,6 +45,7 @@ pub struct Sensors {
     pub door: DoorSettings,
     pub temperature: SensorSettings,
     pub humidity: SensorSettings,
+    pub carbondioxide: SensorSettings,
 }
 
 #[derive(Deserialize, Clone)]
