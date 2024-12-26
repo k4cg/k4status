@@ -69,7 +69,7 @@ You may have a look in the Space API specification on how to fill the fields.
 
 By default, the app will look for both the configuration (`config.json`) and template (`template.json`) files in the current working directory.
 
-In case the files are located somewhere different, you can use the optional commandline arguments to provide the correct paths.
+In case the files are located somewhere different, you can use the optional commandline arguments or their corresponding environment variables to provide the correct paths.
 Just run `./k4status --help` to show their usage.
 
 Next to the file paths, you can adjust the log level.

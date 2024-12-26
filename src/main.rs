@@ -11,12 +11,12 @@ const FILE_CONFIG: &str = "config.json";
 const FILE_TEMPLATE: &str = "template.json";
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version, about)]
 struct Args {
-    #[arg(short, long, default_value = FILE_CONFIG)]
+    #[arg(short, long, env = "K4S_CONFIG", default_value = FILE_CONFIG)]
     config: String,
 
-    #[arg(short, long, default_value = FILE_TEMPLATE)]
+    #[arg(short, long, env = "K4S_TEMPLATE", default_value = FILE_TEMPLATE)]
     template: String,
 }
 
