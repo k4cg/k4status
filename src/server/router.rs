@@ -56,7 +56,5 @@ pub async fn run(
 
     axum::serve(listener, app)
         .await
-        .map_err(|e| StatusError::Server(format!("Failed to start server ({})", e)))?;
-
-    Ok(())
+        .map_err(|e| StatusError::Server(format!("Failed to start server ({})", e)))
 }

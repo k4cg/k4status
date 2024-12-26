@@ -59,11 +59,5 @@ async fn main() -> Result<(), StatusError> {
         .init()
         .expect("Logger already initialized");
 
-    match app().await {
-        Ok(_) => panic!(),
-        Err(err) => {
-            log::error!("{}", err);
-            Err(err)
-        }
-    }
+    app().await
 }

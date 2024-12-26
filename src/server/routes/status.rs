@@ -1,4 +1,4 @@
-use axum::{extract::State, http, Json};
+use axum::{extract::State, Json};
 use chrono::{DateTime, TimeZone, Utc};
 use spaceapi::{sensors, Status as SpaceStatus};
 use std::sync::Arc;
@@ -23,17 +23,13 @@ impl StateStatus {
     }
 }
 
-pub async fn get_status(
-    State(state): State<Arc<AppState>>,
-) -> (http::StatusCode, Json<SpaceStatus>) {
+pub async fn get_status(State(state): State<Arc<AppState>>) -> Json<SpaceStatus> {
     log::info!("GET /status.json");
 
-    (http::StatusCode::OK, Json(update_template(&state).await))
+    Json(update_template(&state).await)
 }
 
-pub async fn get_status_cache(
-    State(state): State<Arc<AppState>>,
-) -> (http::StatusCode, Json<SpaceStatus>) {
+pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceStatus> {
     log::info!("GET /status.json");
 
     let status = {
@@ -46,7 +42,7 @@ pub async fn get_status_cache(
         current.status.clone()
     };
 
-    (http::StatusCode::OK, Json(status))
+    Json(status)
 }
 
 async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {

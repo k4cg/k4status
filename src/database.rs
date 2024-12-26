@@ -1,38 +1,16 @@
 use crate::{configuration, StatusError};
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use std::vec::Vec;
 
 #[derive(Clone)]
 pub struct Database {
     client: influxdb::Client,
 }
 
-#[derive(Debug)]
+#[derive(Deserialize, Clone)]
 pub struct TimeValue {
     pub time: DateTime<Utc>,
     pub value: f64,
-}
-
-#[derive(Deserialize, Clone)]
-struct QueryResults {
-    pub results: Vec<QueryResult>,
-}
-
-#[derive(Deserialize, Clone)]
-struct QueryResult {
-    #[allow(dead_code)]
-    pub statement_id: u64,
-    pub series: Option<Vec<QuerySeries>>,
-}
-
-#[derive(Deserialize, Clone)]
-struct QuerySeries {
-    #[allow(dead_code)]
-    pub name: String,
-    #[allow(dead_code)]
-    pub columns: Vec<String>,
-    pub values: Vec<(String, f64)>,
 }
 
 impl Database {
@@ -57,52 +35,32 @@ impl Database {
         unit: &str,
         validity: DateTime<Utc>,
     ) -> Result<TimeValue, StatusError> {
-        let time = validity
-            .timestamp_nanos_opt()
-            .ok_or(StatusError::Database("DateTime out of range".into()))?;
-
         let query = influxdb::ReadQuery::new(format!(
-            r#"SELECT time, value FROM "{}" WHERE (entity_id = '{}' AND time > {}) ORDER BY time DESC LIMIT 1"#,
-            unit, name, time
+            r#"SELECT time, value FROM "{}" WHERE (entity_id = '{}' AND time > '{}') ORDER BY time DESC LIMIT 1"#,
+            unit,
+            name,
+            validity.to_rfc3339()
         ));
 
-        let results_raw = self
+        let mut result = self
             .client
-            .query(query)
+            .json_query(query)
             .await
             .map_err(|e| StatusError::Database(e.to_string()))?;
 
-        let results: QueryResults = serde_json::from_str(&results_raw)
-            .map_err(|e| StatusError::Database(format!("serde '{}'", e)))?;
-
-        let values = results
-            .results
-            .first()
-            .ok_or(StatusError::Database(
-                "unexpected response, no results".into(),
-            ))?
+        result
+            .deserialize_next::<TimeValue>()
+            .map_err(|e| StatusError::Database(format!("unexpected response: {:?}", e)))?
             .series
-            .as_ref()
-            .ok_or(StatusError::Database(
-                "unexpected response, statements result does not contain any data".into(),
-            ))?
             .first()
             .ok_or(StatusError::Database(
-                "unexpected response, no series".into(),
+                "unexpected response: no series".into(),
             ))?
             .values
             .first()
             .ok_or(StatusError::Database(
-                "unexpected response, no values".into(),
-            ))?;
-
-        let time: DateTime<Utc> = DateTime::parse_from_rfc3339(&values.0)
-            .map(|e| e.into())
-            .map_err(|e| StatusError::Database(e.to_string()))?;
-
-        Ok(TimeValue {
-            time,
-            value: values.1,
-        })
+                "unexpected response: no values".into(),
+            ))
+            .cloned()
     }
 }
