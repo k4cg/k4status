@@ -1,5 +1,5 @@
 use axum::{extract::State, Json};
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, Utc};
 use spaceapi::{sensors, Status as SpaceStatus};
 use std::sync::Arc;
 use std::vec::Vec;
@@ -113,14 +113,11 @@ async fn get_value(
     unit: &str,
     validity: chrono::TimeDelta,
 ) -> Option<database::TimeValue> {
-    match database
-        .query_and_extract(entity, unit, get_start_time(validity))
-        .await
-    {
+    match database.query_and_extract(entity, unit, validity).await {
         Ok(temp) => Some(temp),
         Err(err) => {
             log::warn!(
-                "Failed to get measurement for entity='{}' unit='{}' validity='{}' ({})",
+                "Failed to get measurement for entity='{}' unit='{}' validity='{:?}' ({})",
                 entity,
                 unit,
                 validity,
@@ -128,14 +125,6 @@ async fn get_value(
             );
             None
         }
-    }
-}
-
-fn get_start_time(validity: chrono::TimeDelta) -> DateTime<Utc> {
-    if validity.is_zero() {
-        Utc.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap()
-    } else {
-        Utc::now() - validity
     }
 }
 

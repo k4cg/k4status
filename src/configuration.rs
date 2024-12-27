@@ -95,13 +95,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::FILE_CONFIG;
-    use tokio::runtime::Runtime;
 
-    #[test]
-    fn parse() {
-        Runtime::new().unwrap().block_on(async {
-            read_config(FILE_CONFIG).await.unwrap();
-        });
+    #[tokio::test]
+    async fn parse() {
+        read_config(crate::FILE_CONFIG).await.unwrap();
     }
 }

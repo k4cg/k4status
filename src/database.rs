@@ -33,22 +33,22 @@ impl Database {
         &self,
         name: &str,
         unit: &str,
-        validity: DateTime<Utc>,
+        validity: chrono::TimeDelta,
     ) -> Result<TimeValue, StatusError> {
+        let time = match validity.is_zero() {
+            true => "".into(),
+            false => format!(r#"AND time > now() - {}s"#, validity.num_seconds()),
+        };
+
         let query = influxdb::ReadQuery::new(format!(
-            r#"SELECT time, value FROM "{}" WHERE (entity_id = '{}' AND time > '{}') ORDER BY time DESC LIMIT 1"#,
-            unit,
-            name,
-            validity.to_rfc3339()
+            r#"SELECT time, value FROM "{}" WHERE (entity_id = '{}' {}) ORDER BY time DESC LIMIT 1"#,
+            unit, name, time
         ));
 
-        let mut result = self
-            .client
+        self.client
             .json_query(query)
             .await
-            .map_err(|e| StatusError::Database(e.to_string()))?;
-
-        result
+            .map_err(|e| StatusError::Database(e.to_string()))?
             .deserialize_next::<TimeValue>()
             .map_err(|e| StatusError::Database(format!("unexpected response: {:?}", e)))?
             .series

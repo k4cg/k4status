@@ -14,13 +14,9 @@ pub async fn read_template(fname: &str) -> Result<spaceapi::Status, StatusError>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::FILE_TEMPLATE;
-    use tokio::runtime::Runtime;
 
-    #[test]
-    fn parse() {
-        Runtime::new().unwrap().block_on(async {
-            read_template(FILE_TEMPLATE).await.unwrap();
-        });
+    #[tokio::test]
+    async fn parse() {
+        read_template(crate::FILE_TEMPLATE).await.unwrap();
     }
 }
