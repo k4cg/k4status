@@ -9,5 +9,6 @@ RUN cargo install --target "$TARGET" --path .
 
 FROM scratch
 COPY --from=builder /usr/local/cargo/bin/k4status /
+COPY config.json template.json /
 EXPOSE 3000
 CMD ["./k4status"]
