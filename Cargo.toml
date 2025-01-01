@@ -9,11 +9,13 @@ description = "Space API for K4CG"
 keywords = ["spaceapi", "hackspace", "k4cg"]
 
 [dependencies]
+# As of now, the spaceapi crate does not support the v15 schema.
+# Therefore we use a fork, where the required changes were already implemented.
 spaceapi = { git = "https://github.com/koarlchen/spaceapi-rs", branch = "co2-v15" }
 influxdb = "0.7.2"
-serde = "1.0.216"
+serde = "1.0.217"
 serde_json = "1.0.134"
-axum = "0.7.9"
+axum = "0.8.0"
 tokio = { version = "1.42.0", features = ["rt-multi-thread", "fs", "sync"] }
 chrono = "0.4.39"
 thiserror = "2.0.9"
