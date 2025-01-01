@@ -1,22 +1,5 @@
 use serde::{Deserialize, Deserializer};
-
-use crate::StatusError;
 use std::vec::Vec;
-
-pub async fn read_config(fname: &str) -> Result<Configuration, StatusError> {
-    let raw = tokio::fs::read_to_string(fname).await.map_err(|e| {
-        StatusError::Configuration(format!(
-            "Failed to read configuration file {} ({})",
-            fname, e
-        ))
-    })?;
-
-    let config: Configuration = serde_json::from_str(&raw).map_err(|e| {
-        StatusError::Configuration(format!("Failed to parse configuration ({})", e))
-    })?;
-
-    Ok(config)
-}
 
 #[derive(Deserialize, Clone)]
 pub struct Configuration {
@@ -83,21 +66,9 @@ fn parse_timedelta<'de, D>(deserializer: D) -> Result<chrono::TimeDelta, D::Erro
 where
     D: Deserializer<'de>,
 {
-    let s = serde_json::Number::deserialize(deserializer)?;
-    let secs = s
+    serde_json::Number::deserialize(deserializer)?
         .as_i64()
-        .ok_or(serde::de::Error::custom("Value not an i64"))?;
-    let td =
-        chrono::TimeDelta::new(secs, 0).ok_or(serde::de::Error::custom("Value of out range"))?;
-    Ok(td)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn parse() {
-        read_config(crate::FILE_CONFIG).await.unwrap();
-    }
+        .map(|i| chrono::TimeDelta::new(i, 0))
+        .ok_or(serde::de::Error::custom("Value not an i64"))?
+        .ok_or(serde::de::Error::custom("Value of out range"))
 }

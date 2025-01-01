@@ -1,14 +1,26 @@
 use clap::Parser;
+use configuration::Configuration;
+use serde::Deserialize;
 use simple_logger::SimpleLogger;
 use thiserror::Error;
 
 mod configuration;
 mod database;
 mod server;
-mod template;
 
 const FILE_CONFIG: &str = "config.json";
 const FILE_TEMPLATE: &str = "template.json";
+
+async fn read_file<T>(fname: &str) -> Result<T, StatusError>
+where
+    T: for<'a> Deserialize<'a>,
+{
+    tokio::fs::read_to_string(fname)
+        .await
+        .map(|s| serde_json::from_str(&s))
+        .map_err(|e| StatusError::Template(format!("Failed to read {} ({})", fname, e)))?
+        .map_err(|e| StatusError::Template(format!("Failed to parse {} ({})", fname, e)))
+}
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -39,10 +51,10 @@ async fn app() -> Result<(), StatusError> {
     let args = Args::parse();
 
     log::info!("Parse configuration ({})", args.config);
-    let config = configuration::read_config(&args.config).await?;
+    let config: Configuration = read_file(&args.config).await?;
 
     log::info!("Parse status template ({})", args.template);
-    let template = template::read_template(&args.template).await?;
+    let template: spaceapi::Status = read_file(&args.template).await?;
 
     log::info!("Initialize database connection");
     let database = database::Database::new(&config.database);
@@ -60,4 +72,19 @@ async fn main() -> Result<(), StatusError> {
         .expect("Logger already initialized");
 
     app().await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn parse_config() {
+        read_file::<Configuration>(FILE_CONFIG).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn parse_template() {
+        read_file::<spaceapi::Status>(FILE_TEMPLATE).await.unwrap();
+    }
 }
