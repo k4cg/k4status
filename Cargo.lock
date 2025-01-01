@@ -654,7 +654,7 @@ dependencies = [
 
 [[package]]
 name = "k4status"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "axum",
  "chrono",
