@@ -1,11 +1,11 @@
 let pkgs = import <nixpkgs> { };
 in pkgs.rustPlatform.buildRustPackage rec {
   pname = "k4status";
-  version = "1.1.0";
+  version = "1.2.0";
   cargoLock = {
     lockFile = ./Cargo.lock;
     outputHashes = {
-      "spaceapi-0.9.0" = "sha256-pfo/JiFetFc/vS2AYQBAukdjxqmdp0Nh/ebwj4C2a10=";
+      "spaceapi-0.9.0" = "sha256-SApu1fkGqfMTjg9VoLj5qolzVTiv/lZ2fIYVHCqWDb0=";
     };
   };
   src = pkgs.lib.cleanSource ./.;
