@@ -15,7 +15,7 @@ spaceapi = { git = "https://github.com/koarlchen/spaceapi-rs", branch = "v15" }
 influxdb = "0.7.2"
 serde = "1.0.217"
 serde_json = "1.0.134"
-axum = "0.8.0"
+axum = "0.8.1"
 tokio = { version = "1.42.0", features = ["rt-multi-thread", "fs", "sync"] }
 chrono = "0.4.39"
 thiserror = "2.0.9"
