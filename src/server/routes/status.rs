@@ -83,6 +83,7 @@ where
                     unit: cfg.unit.clone(),
                     metadata: sensors::SensorMetadataWithLocation {
                         location: sensor.location.clone(),
+                        lastchange: Some(value.time.timestamp() as u64),
                         ..Default::default()
                     },
                 }
