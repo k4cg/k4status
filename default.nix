@@ -4,9 +4,6 @@ in pkgs.rustPlatform.buildRustPackage rec {
   version = "1.2.0";
   cargoLock = {
     lockFile = ./Cargo.lock;
-    outputHashes = {
-      "spaceapi-0.9.0" = "sha256-SApu1fkGqfMTjg9VoLj5qolzVTiv/lZ2fIYVHCqWDb0=";
-    };
   };
   src = pkgs.lib.cleanSource ./.;
   postInstall = ''
