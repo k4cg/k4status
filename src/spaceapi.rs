@@ -59,8 +59,11 @@ pub struct State {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct Sensors {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub temperature: Vec<Sensor<f64>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub humidity: Vec<Sensor<f64>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub carbondioxide: Vec<Sensor<u64>>,
 }
 
