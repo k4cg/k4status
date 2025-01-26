@@ -1,12 +1,15 @@
 use clap::Parser;
 use configuration::Configuration;
+use database::Database;
 use serde::Deserialize;
 use simple_logger::SimpleLogger;
+use spaceapi::SpaceApi;
 use thiserror::Error;
 
 mod configuration;
 mod database;
 mod server;
+mod spaceapi;
 
 const FILE_CONFIG: &str = "config.json";
 const FILE_TEMPLATE: &str = "template.json";
@@ -54,10 +57,10 @@ async fn app() -> Result<(), StatusError> {
     let config: Configuration = read_file(&args.config).await?;
 
     log::info!("Parse status template ({})", args.template);
-    let template: spaceapi::Status = read_file(&args.template).await?;
+    let template: SpaceApi = read_file(&args.template).await?;
 
     log::info!("Initialize database connection");
-    let database = database::Database::new(&config.database);
+    let database = Database::new(&config.database);
 
     log::info!("Start server");
     server::run(&config, &database, &template).await
@@ -85,6 +88,6 @@ mod tests {
 
     #[tokio::test]
     async fn parse_template() {
-        read_file::<spaceapi::Status>(FILE_TEMPLATE).await.unwrap();
+        read_file::<SpaceApi>(FILE_TEMPLATE).await.unwrap();
     }
 }

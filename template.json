@@ -6,7 +6,10 @@
     "location": {
         "address": "Koenigstraße 93, 90402 Nuernberg",
         "lon": 11.0819743,
-        "lat": 49.4487901
+        "lat": 49.4487901,
+        "timezone": "Europe/Berlin",
+        "country_code": "DE",
+        "hint": "https://k4cg.org/index.php/Wegbeschreibung"
     },
     "contact": {
         "mastodon": "@k4cg@chaos.social",
@@ -14,9 +17,6 @@
         "ml": "k4cg@k4cg.org",
         "issue_mail": "info@k4cg.org"
     },
-    "issue_report_channels": [
-        "issue_mail"
-    ],
     "projects": [
         "https://k4cg.org/index.php/Projekte",
         "https://github.com/k4cg"

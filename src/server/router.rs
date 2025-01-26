@@ -1,7 +1,7 @@
-use spaceapi::Status as SpaceStatus;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::spaceapi::SpaceApi;
 use crate::{configuration::Configuration, database::Database, StatusError};
 
 use crate::server::routes::*;
@@ -10,7 +10,7 @@ use crate::server::routes::*;
 pub struct AppState {
     pub config: Configuration,
     pub database: Database,
-    pub template: SpaceStatus,
+    pub template: SpaceApi,
     pub state_status: Arc<Mutex<StateStatus>>,
     pub state_health: Arc<Mutex<StateHealth>>,
 }
@@ -18,7 +18,7 @@ pub struct AppState {
 pub async fn run(
     config: &Configuration,
     database: &Database,
-    status: &SpaceStatus,
+    status: &SpaceApi,
 ) -> Result<(), StatusError> {
     let state = Arc::new(AppState {
         config: config.clone(),

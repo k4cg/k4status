@@ -2,6 +2,7 @@ use serde::{Deserialize, Deserializer};
 use std::vec::Vec;
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Configuration {
     pub database: Database,
     pub server: Server,
@@ -10,6 +11,7 @@ pub struct Configuration {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Database {
     pub connection: String,
     pub database: String,
@@ -18,12 +20,14 @@ pub struct Database {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Server {
     pub hostname: String,
     pub port: u16,
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Sensors {
     pub door: DoorSettings,
     pub temperature: SensorSettings,
@@ -32,6 +36,7 @@ pub struct Sensors {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct DoorSettings {
     pub entity: String,
     pub unit: String,
@@ -40,6 +45,7 @@ pub struct DoorSettings {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct SensorSettings {
     pub id: Vec<SensorIdentification>,
     pub unit: String,
@@ -48,12 +54,14 @@ pub struct SensorSettings {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct SensorIdentification {
     pub entity: String,
     pub location: String,
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct CacheTime {
     #[serde(rename = "status.json")]
     #[serde(deserialize_with = "parse_timedelta")]

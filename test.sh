@@ -50,19 +50,27 @@ RESULT=true
 # Overall error handler
 trap cleanup EXIT
 
+# Build internal tests
+printc "$ORANGE" "=> Build internal tests"
+cargo test --no-run > /dev/null 2>&1 || err "Failed to build internal tests"
+
+# Run internal tests
+printc "$ORANGE" "=> Run internal tests"
+cargo test > /dev/null 2>&1 || err "Internal tests failed"
+
 # Build the app
-printc "$ORANGE" "=> Build"
+printc "$ORANGE" "=> Build app"
 cargo build > /dev/null 2>&1 || err "Failed to build app"
 
 # Run the app
-printc "$ORANGE" "=> Run"
+printc "$ORANGE" "=> Run app"
 cargo run > /dev/null 2>&1 &
 PID=$!
 sleep 0.5
 ps -p "$PID" > /dev/null || err "Failed to start app"
 
 # Perform tests
-printc "$ORANGE" "=> Test"
+printc "$ORANGE" "=> Test app"
 
 # Test /health
 curl -f -s -o /dev/null $URL_HEALTH || err "App not healthy"
@@ -75,16 +83,20 @@ if [ $RESULT = true ] ; then
     [ "$(jq '.sensors.humidity[0] | has("value") and has("unit")' <<< "$STATUS")" = "true" ] || err "Humidity value missing"
     [ "$(jq '.sensors.carbondioxide[0] | has("value") and has("unit")' <<< "$STATUS")" = "true" ] || err "CO2 value missing"
 
-    compat="$(jq '.api_compatibility[]' <<< "$STATUS" | tr " " "\n" | sed 's/"//g')"
-    for ver in $compat
-    do
-        if curl -f -s "https://schema.spaceapi.io/$ver.json" > "schema_$ver.json" ; then
-            jsonschema "schema_$ver.json" <<< "$STATUS" > /dev/null 2>&1 || err "Incompatible to v$ver"
-        else
-            err "Failed to download schema for v$ver"
-        fi
-        rm -f "schema_$ver.json"
-    done
+    if [ "$(jq '.api_compatibility | length' <<< "$STATUS")" -gt 0 ] ; then
+        compat="$(jq '.api_compatibility[]' <<< "$STATUS" | tr " " "\n" | sed 's/"//g')"
+        for ver in $compat
+        do
+            if curl -f -s "https://raw.githubusercontent.com/SpaceApi/schema/refs/heads/master/$ver.json" > "schema_$ver.json" ; then
+                jsonschema "schema_$ver.json" <<< "$STATUS" > /dev/null 2>&1 || err "Incompatible to v$ver"
+            else
+                err "Failed to download schema for v$ver"
+            fi
+            rm -f "schema_$ver.json"
+        done
+    else
+        err "API compatiblity empty"
+    fi
 fi
 
 # Cleanup

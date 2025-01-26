@@ -1,35 +1,36 @@
 use axum::{extract::State, Json};
 use chrono::{DateTime, Utc};
-use spaceapi::{sensors, Status as SpaceStatus};
+use num_traits::AsPrimitive;
 use std::sync::Arc;
 use std::vec::Vec;
 
 use crate::{configuration, database};
+use crate::{spaceapi, spaceapi::Sensor, spaceapi::Sensors, spaceapi::SpaceApi};
 
 use crate::server::router::AppState;
 
 #[derive(Clone)]
 pub struct StateStatus {
-    pub status: SpaceStatus,
+    pub status: SpaceApi,
     pub last_update: DateTime<Utc>,
 }
 
 impl StateStatus {
-    pub fn new(status: SpaceStatus) -> Self {
+    pub fn new(status: SpaceApi) -> Self {
         Self {
             status,
-            last_update: chrono::DateTime::<Utc>::MIN_UTC,
+            last_update: DateTime::<Utc>::MIN_UTC,
         }
     }
 }
 
-pub async fn get_status(State(state): State<Arc<AppState>>) -> Json<SpaceStatus> {
+pub async fn get_status(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
     log::info!("GET /status.json");
 
     Json(update_template(&state).await)
 }
 
-pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceStatus> {
+pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
     log::info!("GET /status.json");
 
     let status = {
@@ -45,7 +46,7 @@ pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceS
     Json(status)
 }
 
-async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {
+async fn update_template(appstate: &Arc<AppState>) -> SpaceApi {
     let temp = get_generic_sensor(&appstate.database, &appstate.config.sensors.temperature).await;
     let humid = get_generic_sensor(&appstate.database, &appstate.config.sensors.humidity).await;
     let co2 = get_generic_sensor(&appstate.database, &appstate.config.sensors.carbondioxide).await;
@@ -55,11 +56,10 @@ async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {
     template.state = door;
 
     if !temp.is_empty() || !humid.is_empty() || !co2.is_empty() {
-        template.sensors = Some(sensors::Sensors {
+        template.sensors = Some(Sensors {
             temperature: temp,
             humidity: humid,
             carbondioxide: co2,
-            ..Default::default()
         })
     }
 
@@ -69,26 +69,21 @@ async fn update_template(appstate: &Arc<AppState>) -> SpaceStatus {
 async fn get_generic_sensor<T>(
     db: &database::Database,
     cfg: &configuration::SensorSettings,
-) -> Vec<T>
+) -> Vec<Sensor<T>>
 where
-    T: From<GenericSensor>,
+    T: AsPrimitive<T>,
+    f64: AsPrimitive<T>,
 {
-    let mut sensors: Vec<T> = Vec::new();
+    let mut sensors: Vec<Sensor<T>> = Vec::new();
 
     for sensor in cfg.id.iter() {
         if let Some(value) = get_value(db, &sensor.entity, &cfg.unit, cfg.validity).await {
-            sensors.push(
-                GenericSensor {
-                    value: value.value,
-                    unit: cfg.unit.clone(),
-                    metadata: sensors::SensorMetadataWithLocation {
-                        location: sensor.location.clone(),
-                        lastchange: Some(value.time.timestamp() as u64),
-                        ..Default::default()
-                    },
-                }
-                .into(),
-            );
+            sensors.push(Sensor {
+                value: value.value.as_(),
+                unit: cfg.unit.clone(),
+                location: sensor.location.clone(),
+                lastchange: Some(value.time.timestamp() as u64),
+            });
         }
     }
 
@@ -104,7 +99,6 @@ async fn get_door(
         .map(|value| spaceapi::State {
             open: Some(value.value > 0.5),
             lastchange: Some(value.time.timestamp() as u64),
-            ..Default::default()
         })
 }
 
@@ -125,46 +119,6 @@ async fn get_value(
                 err
             );
             None
-        }
-    }
-}
-
-// There is no definition of a generic sensor in the spaceapi crate.
-// The sensors we currently use share the same data fields but are implemented as seperate types.
-// Therefore we define our own generic type and implement the From trait for the sensors we currently use.
-#[derive(Clone)]
-struct GenericSensor {
-    value: f64,
-    unit: String,
-    metadata: sensors::SensorMetadataWithLocation,
-}
-
-impl From<GenericSensor> for sensors::TemperatureSensor {
-    fn from(entry: GenericSensor) -> sensors::TemperatureSensor {
-        sensors::TemperatureSensor {
-            value: entry.value,
-            unit: entry.unit.clone(),
-            metadata: entry.metadata.clone(),
-        }
-    }
-}
-
-impl From<GenericSensor> for sensors::HumiditySensor {
-    fn from(entry: GenericSensor) -> sensors::HumiditySensor {
-        sensors::HumiditySensor {
-            value: entry.value,
-            unit: entry.unit.clone(),
-            metadata: entry.metadata.clone(),
-        }
-    }
-}
-
-impl From<GenericSensor> for sensors::CarbondioxideSensor {
-    fn from(entry: GenericSensor) -> sensors::CarbondioxideSensor {
-        sensors::CarbondioxideSensor {
-            value: entry.value as u64,
-            unit: entry.unit.clone(),
-            metadata: entry.metadata.clone(),
         }
     }
 }

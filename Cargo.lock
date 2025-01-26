@@ -798,10 +798,10 @@ dependencies = [
  "clap",
  "influxdb",
  "log",
+ "num-traits",
  "serde",
  "serde_json",
  "simple_logger",
- "spaceapi",
  "thiserror 2.0.9",
  "tokio",
 ]
@@ -1187,17 +1187,6 @@ checksum = "c970269d99b64e60ec3bd6ad27270092a5394c4e309314b18ae3fe575695fbe8"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "spaceapi"
-version = "0.9.0"
-source = "git+https://github.com/koarlchen/spaceapi-rs?branch=v15#6cc1bc69af2a7f55ea8dcfc7195e157d86e95896"
-dependencies = [
- "log",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
 ]
 
 [[package]]
