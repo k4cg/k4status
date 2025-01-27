@@ -4,11 +4,14 @@ The software serves the Space API JSON document upon a HTTP request.
 The document itself is provided as a template to which the latest sensor values will be added.
 The sensor values are collected from an InfluxDB that will be continiously updated from HomeAssistant.
 
+[![Door status](https://spaceapi.k4cg.org/badge)](https://k4cg.org)
+
 
 ## Endpoints
 
 - GET `/status.json`: Request the current space status compliant to the Space API JSON schema.
 - GET `/health`: Get health information, basically checks the connection to the database. Returns 200 if everything is ok, and 418 in case the connection could not be established.
+- GET `/badge`: Get the current door status as a badge
 
 
 ## Configuration
@@ -78,7 +81,7 @@ You may have a look in the Space API specification on how to fill the fields.
 ## Run
 
 By default, the app will look for both the configuration (`config.json`) and template (`template.json`) files in the current working directory.
-
+The badges are expected to be located in the folder `badges/` with the names `open.svg`, `closed.svg` and `unknown.svg`.
 In case the files are located somewhere different, you can use the optional commandline arguments or their corresponding environment variables to provide the correct paths.
 Just run `./k4status --help` to show their usage.
 

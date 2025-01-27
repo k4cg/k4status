@@ -1,4 +1,4 @@
-FROM rust:slim-bookworm as builder
+FROM rust:slim-bookworm AS builder
 WORKDIR /usr/src/k4status
 ENV TARGET x86_64-unknown-linux-musl
 RUN apt-get update &&\
@@ -10,5 +10,6 @@ RUN cargo install --target "$TARGET" --path .
 FROM scratch
 COPY --from=builder /usr/local/cargo/bin/k4status /
 COPY config.json template.json /
+COPY badges/ /badges
 EXPOSE 3000
 CMD ["./k4status"]

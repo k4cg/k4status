@@ -1,5 +1,5 @@
 use crate::{configuration, StatusError};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeDelta, Utc};
 use serde::Deserialize;
 
 #[derive(Clone)]
@@ -29,11 +29,32 @@ impl Database {
             .map_err(|e| StatusError::Database(format!("Failed to connect to database ({})", e)))
     }
 
-    pub async fn query_and_extract(
+    pub async fn get_value(
+        &self,
+        entity: &str,
+        unit: &str,
+        validity: TimeDelta,
+    ) -> Option<TimeValue> {
+        match self.query_and_extract(entity, unit, validity).await {
+            Ok(temp) => Some(temp),
+            Err(err) => {
+                log::warn!(
+                    "Failed to get measurement for entity='{}' unit='{}' validity='{:?}' ({})",
+                    entity,
+                    unit,
+                    validity,
+                    err
+                );
+                None
+            }
+        }
+    }
+
+    async fn query_and_extract(
         &self,
         name: &str,
         unit: &str,
-        validity: chrono::TimeDelta,
+        validity: TimeDelta,
     ) -> Result<TimeValue, StatusError> {
         let time = match validity.is_zero() {
             true => "".into(),

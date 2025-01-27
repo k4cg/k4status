@@ -14,6 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install prerequisites
+      run: sudo apt-get update && sudo apt-get install -y jq libxml2-utils cargo rust-clippy rustfmt
     - name: Run build
       run: cargo build
     - name: Run tests
@@ -22,8 +24,7 @@ jobs:
       run: cargo fmt --all -- --check
     - name: Run clippy
       run: cargo clippy --all-targets
-    - name: Check json format
+    - name: Check file formatting
       run: |
-        sudo apt-get install -y jq
-        bash format_json.sh
+        bash format.sh
         git diff --exit-code

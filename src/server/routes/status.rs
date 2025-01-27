@@ -77,7 +77,7 @@ where
     let mut sensors: Vec<Sensor<T>> = Vec::new();
 
     for sensor in cfg.id.iter() {
-        if let Some(value) = get_value(db, &sensor.entity, &cfg.unit, cfg.validity).await {
+        if let Some(value) = db.get_value(&sensor.entity, &cfg.unit, cfg.validity).await {
             sensors.push(Sensor {
                 value: value.value.as_(),
                 unit: cfg.unit.clone(),
@@ -94,31 +94,10 @@ async fn get_door(
     db: &database::Database,
     cfg: &configuration::DoorSettings,
 ) -> Option<spaceapi::State> {
-    get_value(db, &cfg.entity, &cfg.unit, cfg.validity)
+    db.get_value(&cfg.entity, &cfg.unit, cfg.validity)
         .await
         .map(|value| spaceapi::State {
             open: Some(value.value > 0.5),
             lastchange: Some(value.time.timestamp() as u64),
         })
-}
-
-async fn get_value(
-    database: &database::Database,
-    entity: &str,
-    unit: &str,
-    validity: chrono::TimeDelta,
-) -> Option<database::TimeValue> {
-    match database.query_and_extract(entity, unit, validity).await {
-        Ok(temp) => Some(temp),
-        Err(err) => {
-            log::warn!(
-                "Failed to get measurement for entity='{}' unit='{}' validity='{:?}' ({})",
-                entity,
-                unit,
-                validity,
-                err
-            );
-            None
-        }
-    }
 }

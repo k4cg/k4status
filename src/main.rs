@@ -1,3 +1,4 @@
+use badge::Badges;
 use clap::Parser;
 use configuration::Configuration;
 use database::Database;
@@ -6,6 +7,7 @@ use simple_logger::SimpleLogger;
 use spaceapi::SpaceApi;
 use thiserror::Error;
 
+mod badge;
 mod configuration;
 mod database;
 mod server;
@@ -13,6 +15,7 @@ mod spaceapi;
 
 const FILE_CONFIG: &str = "config.json";
 const FILE_TEMPLATE: &str = "template.json";
+const DIR_BADGES: &str = "badges/";
 
 async fn read_file<T>(fname: &str) -> Result<T, StatusError>
 where
@@ -21,8 +24,8 @@ where
     tokio::fs::read_to_string(fname)
         .await
         .map(|s| serde_json::from_str(&s))
-        .map_err(|e| StatusError::Template(format!("Failed to read {} ({})", fname, e)))?
-        .map_err(|e| StatusError::Template(format!("Failed to parse {} ({})", fname, e)))
+        .map_err(|e| StatusError::File(format!("Failed to read {} ({})", fname, e)))?
+        .map_err(|e| StatusError::File(format!("Failed to parse {} ({})", fname, e)))
 }
 
 #[derive(Parser, Debug)]
@@ -33,6 +36,9 @@ struct Args {
 
     #[arg(short, long, env = "K4S_TEMPLATE", default_value = FILE_TEMPLATE)]
     template: String,
+
+    #[arg(short, long, env = "K4S_BADGES", default_value = DIR_BADGES)]
+    badges: String,
 }
 
 #[derive(Error, Debug, PartialEq, Eq)]
@@ -40,11 +46,8 @@ pub enum StatusError {
     #[error("Failed to interact with database: {0}")]
     Database(String),
 
-    #[error("Invalid template: {0}")]
-    Template(String),
-
-    #[error("Invalid configuration: {0}")]
-    Configuration(String),
+    #[error("Failed to read/parse file: {0}")]
+    File(String),
 
     #[error("Failed to start server: {0}")]
     Server(String),
@@ -59,11 +62,14 @@ async fn app() -> Result<(), StatusError> {
     log::info!("Parse status template ({})", args.template);
     let template: SpaceApi = read_file(&args.template).await?;
 
+    log::info!("Read badges ({})", args.badges);
+    let badges = Badges::new(&args.badges).await?;
+
     log::info!("Initialize database connection");
     let database = Database::new(&config.database);
 
     log::info!("Start server");
-    server::run(&config, &database, &template).await
+    server::run(&config, &database, &template, &badges).await
 }
 
 #[tokio::main]

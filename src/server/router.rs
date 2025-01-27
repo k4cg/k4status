@@ -1,6 +1,7 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+use crate::badge::Badges;
 use crate::spaceapi::SpaceApi;
 use crate::{configuration::Configuration, database::Database, StatusError};
 
@@ -11,6 +12,7 @@ pub struct AppState {
     pub config: Configuration,
     pub database: Database,
     pub template: SpaceApi,
+    pub badges: Badges,
     pub state_status: Arc<Mutex<StateStatus>>,
     pub state_health: Arc<Mutex<StateHealth>>,
 }
@@ -19,11 +21,13 @@ pub async fn run(
     config: &Configuration,
     database: &Database,
     status: &SpaceApi,
+    badges: &Badges,
 ) -> Result<(), StatusError> {
     let state = Arc::new(AppState {
         config: config.clone(),
         database: database.clone(),
         template: status.clone(),
+        badges: badges.clone(),
         state_status: Arc::new(Mutex::new(StateStatus::new(status.clone()))),
         state_health: Arc::new(Mutex::new(StateHealth::default())),
     });
@@ -38,9 +42,12 @@ pub async fn run(
         false => axum::routing::get(get_health_cache),
     };
 
+    let route_badge = axum::routing::get(get_badge);
+
     let app = axum::Router::new()
         .route("/status.json", route_status)
         .route("/health", route_health)
+        .route("/badge", route_badge)
         .with_state(state);
 
     let serve_str = format!("{}:{}", config.server.hostname, config.server.port);
