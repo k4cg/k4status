@@ -1,6 +1,6 @@
 [package]
 name = "k4status"
-version = "1.2.2"
+version = "1.3.0"
 authors = ["Max <max@karl.wf>"]
 edition = "2021"
 license = "MIT"
