@@ -12,7 +12,7 @@ keywords = ["spaceapi", "hackspace", "k4cg"]
 [dependencies]
 influxdb = "0.7.2"
 serde = "1.0.217"
-serde_json = "1.0.137"
+serde_json = "1.0.138"
 axum = "0.8.1"
 tokio = { version = "1.43.0", features = ["rt-multi-thread", "fs", "sync"] }
 chrono = "0.4.39"
