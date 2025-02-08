@@ -7,7 +7,6 @@ use crate::server::router::AppState;
 const STATUS_OK: http::StatusCode = http::StatusCode::OK;
 const STATUS_ERR: http::StatusCode = http::StatusCode::IM_A_TEAPOT;
 
-#[derive(Clone)]
 pub struct StateHealth {
     pub status: http::StatusCode,
     pub last_update: DateTime<Utc>,

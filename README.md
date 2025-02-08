@@ -69,7 +69,8 @@ The configuration takes place within the file `config.json`:
     },
     "cache_time": {
         "status.json": 0, // Time in seconds to cache values for /status.json endpoint, set to 0 to disable caching
-        "health": 0 // Time in seconds to cache values for /health endpoint, set to 0 to disable caching
+        "health": 0, // Time in seconds to cache values for /health endpoint, set to 0 to disable caching
+        "badge": 0 // Time in seconds to cache values for /badge endpoint, set to 0 to disable caching
     }
 }
 ```

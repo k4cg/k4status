@@ -48,6 +48,7 @@
     },
     "cache_time": {
         "status.json": 0,
-        "health": 0
+        "health": 0,
+        "badge": 0
     }
 }

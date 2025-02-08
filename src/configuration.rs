@@ -68,6 +68,8 @@ pub struct CacheTime {
     pub status_json: chrono::TimeDelta,
     #[serde(deserialize_with = "parse_timedelta")]
     pub health: chrono::TimeDelta,
+    #[serde(deserialize_with = "parse_timedelta")]
+    pub badge: chrono::TimeDelta,
 }
 
 fn parse_timedelta<'de, D>(deserializer: D) -> Result<chrono::TimeDelta, D::Error>

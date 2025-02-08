@@ -9,7 +9,6 @@ use crate::{spaceapi, spaceapi::Sensor, spaceapi::Sensors, spaceapi::SpaceApi};
 
 use crate::server::router::AppState;
 
-#[derive(Clone)]
 pub struct StateStatus {
     pub status: SpaceApi,
     pub last_update: DateTime<Utc>,
