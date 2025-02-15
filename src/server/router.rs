@@ -34,7 +34,7 @@ pub async fn run(
         state_badge: Arc::new(Mutex::new(StateBadge::new(&badges.unknown))),
     });
 
-    let route_status = match config.cache_time.status_json.is_zero() {
+    let route_status = match config.cache_time.status.is_zero() {
         true => axum::routing::get(get_status),
         false => axum::routing::get(get_status_cache),
     };
@@ -50,7 +50,7 @@ pub async fn run(
     };
 
     let app = axum::Router::new()
-        .route("/status.json", route_status)
+        .route("/status", route_status)
         .route("/health", route_health)
         .route("/badge", route_badge)
         .with_state(state);

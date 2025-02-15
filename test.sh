@@ -42,7 +42,7 @@ NC='\033[0m' # No Color
 # URLs
 URL="http://localhost:3000"
 URL_HEALTH="${URL}/health"
-URL_STATUS="${URL}/status.json"
+URL_STATUS="${URL}/status"
 
 # Overall result
 RESULT=true
@@ -75,7 +75,7 @@ printc "$ORANGE" "=> Test app"
 # Test /health
 curl -f -s -o /dev/null $URL_HEALTH || err "App not healthy"
 
-# Test /status.json
+# Test /status
 if [ $RESULT = true ] ; then
     STATUS=$(curl -f -s $URL_STATUS)
     [ "$(jq '.state | has("open") and has("lastchange")' <<< "$STATUS")" = "true" ] || err "Door status missing"

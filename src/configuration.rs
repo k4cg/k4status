@@ -63,9 +63,8 @@ pub struct SensorIdentification {
 #[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct CacheTime {
-    #[serde(rename = "status.json")]
     #[serde(deserialize_with = "parse_timedelta")]
-    pub status_json: chrono::TimeDelta,
+    pub status: chrono::TimeDelta,
     #[serde(deserialize_with = "parse_timedelta")]
     pub health: chrono::TimeDelta,
     #[serde(deserialize_with = "parse_timedelta")]

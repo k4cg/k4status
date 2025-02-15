@@ -24,18 +24,18 @@ impl StateStatus {
 }
 
 pub async fn get_status(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
-    log::info!("GET /status.json");
+    log::info!("GET /status");
 
     Json(update_template(&state).await)
 }
 
 pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
-    log::info!("GET /status.json");
+    log::info!("GET /status");
 
     let status = {
         let mut current = state.state_status.lock().await;
         let now = Utc::now();
-        if (now - state.config.cache_time.status_json) > current.last_update {
+        if (now - state.config.cache_time.status) > current.last_update {
             current.last_update = now;
             current.status = update_template(&state).await;
         }
