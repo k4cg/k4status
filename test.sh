@@ -43,6 +43,7 @@ NC='\033[0m' # No Color
 URL="http://localhost:3000"
 URL_HEALTH="${URL}/health"
 URL_STATUS="${URL}/status"
+URL_BADGE="${URL}/badge"
 
 # Overall result
 RESULT=true
@@ -96,6 +97,18 @@ if [ $RESULT = true ] ; then
         done
     else
         err "API compatiblity empty"
+    fi
+fi
+
+# Test /badge
+if [ $RESULT = true ] ; then
+    door_state="$(curl -f -s $URL_STATUS | jq '.state.open')"
+    door_badge="$(curl -f -s $URL_BADGE | sed 's/xmlns=".*"//g' | xmllint --xpath "/svg/title/text()" -)"
+
+    if [ "$door_state" = "true" ] ; then
+        grep -q "open" <<< "$door_badge" || err "Door/badge state mismatch"
+    else
+        grep -q "closed" <<< "$door_badge" || err "Door/badge state mismatch"
     fi
 fi
 
