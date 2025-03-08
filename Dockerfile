@@ -4,7 +4,7 @@ ENV TARGET x86_64-unknown-linux-musl
 RUN apt-get update &&\
     apt-get --no-install-recommends -y install musl-tools &&\
     rustup target add "$TARGET"
-COPY . .
+COPY --exclude=target/ . .
 RUN cargo install --target "$TARGET" --path .
 
 FROM scratch
