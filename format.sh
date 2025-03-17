@@ -1,27 +1,25 @@
 #!/bin/bash
 
-result=true
+result=0
 
 json=("template.json" "config.json")
 for file in "${json[@]}" ; do
-    content=$(cat "$file")
-    if ! jq --indent 4 <<< "$content" > "$file" ; then
+    if formatted=$(jq --indent 4 < "$file") ; then
+        echo "$formatted" > "$file"
+    else
         echo "Failed to format $file"
-        result=false
+        result=1
     fi
 done
 
 svg=("badges/open.svg" "badges/closed.svg" "badges/unknown.svg")
 for file in "${svg[@]}" ; do
-    content=$(cat "$file")
-    if ! XMLLINT_INDENT="    " xmllint --format - <<< "$content" > "$file" ; then
+    if formatted=$(XMLLINT_INDENT="    " xmllint --format "$file") ; then
+        echo "$formatted" > "$file"
+    else
         echo "Failed to format $file"
-        result=false
+        result=1
     fi
 done
 
-if [ $result = true ] ; then
-    exit 0
-else
-    exit 1
-fi
+exit $result
