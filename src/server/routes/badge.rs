@@ -42,6 +42,7 @@ fn build_response(badge: String) -> Response {
     Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "image/svg+xml")
+        .header(header::CACHE_CONTROL, "no-cache")
         .body(Body::from(badge))
         .unwrap()
 }
