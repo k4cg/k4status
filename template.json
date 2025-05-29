@@ -14,6 +14,12 @@
         "country_code": "DE",
         "hint": "https://k4cg.org/index.php/Wegbeschreibung"
     },
+    "state": {
+        "icon": {
+            "open": "https://spaceapi.k4cg.org/icon/open",
+            "closed": "https://spaceapi.k4cg.org/icon/closed"
+        }
+    },
     "contact": {
         "mastodon": "@k4cg@chaos.social",
         "email": "info@k4cg.org",

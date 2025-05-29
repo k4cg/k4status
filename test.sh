@@ -112,6 +112,12 @@ if [ $RESULT = true ] ; then
     fi
 fi
 
+# Test /icon
+if [ $RESULT = true ] ; then
+    curl -s -f http://localhost:3000/icon/open --output /dev/null || err "Icon 'open' missing"
+    curl -s -f http://localhost:3000/icon/closed --output /dev/null || err "Icon 'closed' missing"
+fi
+
 # Cleanup
 trap - EXIT
 cleanup

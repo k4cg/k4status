@@ -2,6 +2,7 @@ use badge::Badges;
 use clap::Parser;
 use configuration::Configuration;
 use database::Database;
+use icon::Icons;
 use serde::Deserialize;
 use simple_logger::SimpleLogger;
 use spaceapi::SpaceApi;
@@ -10,12 +11,14 @@ use thiserror::Error;
 mod badge;
 mod configuration;
 mod database;
+mod icon;
 mod server;
 mod spaceapi;
 
 const FILE_CONFIG: &str = "config.json";
 const FILE_TEMPLATE: &str = "template.json";
-const DIR_BADGES: &str = "badges/";
+const DIR_BADGES: &str = "assets/badges/";
+const DIR_ICONS: &str = "assets/icons/";
 
 async fn read_file<T>(fname: &str) -> Result<T, StatusError>
 where
@@ -39,6 +42,9 @@ struct Args {
 
     #[arg(short, long, env = "K4S_BADGES", default_value = DIR_BADGES)]
     badges: String,
+
+    #[arg(short, long, env = "K4S_ICONS", default_value = DIR_ICONS)]
+    icons: String,
 }
 
 #[derive(Error, Debug, PartialEq, Eq)]
@@ -65,11 +71,14 @@ async fn app() -> Result<(), StatusError> {
     log::info!("Read badges ({})", args.badges);
     let badges = Badges::new(&args.badges).await?;
 
+    log::info!("Read icons ({})", args.icons);
+    let icons = Icons::new(&args.icons).await?;
+
     log::info!("Initialize database connection");
     let database = Database::new(&config.database);
 
     log::info!("Start server");
-    server::run(&config, &database, &template, &badges).await
+    server::run(&config, &database, &template, &badges, &icons).await
 }
 
 #[tokio::main]

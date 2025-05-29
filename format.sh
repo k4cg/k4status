@@ -12,7 +12,7 @@ for file in "${json[@]}" ; do
     fi
 done
 
-svg=("badges/open.svg" "badges/closed.svg" "badges/unknown.svg")
+svg=("assets/badges/open.svg" "assets/badges/closed.svg" "assets/badges/unknown.svg")
 for file in "${svg[@]}" ; do
     if formatted=$(XMLLINT_INDENT="    " xmllint --format "$file") ; then
         echo "$formatted" > "$file"

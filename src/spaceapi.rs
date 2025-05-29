@@ -47,13 +47,22 @@ pub struct Contact {
     pub issue_mail: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct State {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lastchange: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon: Option<Icon>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Icon {
+    pub open: String,
+    pub closed: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

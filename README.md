@@ -11,7 +11,9 @@ The sensor values are collected from an InfluxDB that will be continiously updat
 
 - GET `/status`: Request the current space status compliant to the Space API JSON schema.
 - GET `/health`: Get health information, basically checks the connection to the database. Returns 200 if everything is ok, and 418 in case the connection could not be established.
-- GET `/badge`: Get the current door status as a badge
+- GET `/badge`: Get the current door status as a badge (`svg+xml`).
+- GET `/icon/open`: Get the icon that shows the space as open (`png`).
+- GET `/icon/closed`: Get the icon that shows the space as closed (`png`).
 
 
 ## Configuration
@@ -82,9 +84,10 @@ You may have a look in the Space API specification on how to fill the fields.
 ## Run
 
 By default, the app will look for both the configuration (`config.json`) and template (`template.json`) files in the current working directory.
-The badges are expected to be located in the folder `badges/` with the names `open.svg`, `closed.svg` and `unknown.svg`.
+The badges are expected to be located in the folder `assets/badges/` with the names `open.svg`, `closed.svg` and `unknown.svg`.
+Similarly, the icons showing the space open and closed are expected to be located in the folder `assets/icons/` with the names `open.png` and `closed.png`.
 In case the files are located somewhere different, you can use the optional commandline arguments or their corresponding environment variables to provide the correct paths.
-Just run `./k4status --help` to show their usage.
+Just run `k4status --help` to show their usage.
 
 Next to the file paths, you can adjust the log level.
 You may use the environment variable `RUST_LOG` to configure anything other than the default level `info`.

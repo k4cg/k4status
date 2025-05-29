@@ -9,6 +9,6 @@ in pkgs.rustPlatform.buildRustPackage rec {
   postInstall = ''
     mkdir -p $out/conf
     cp template.json $out/conf/template.json
-    cp -r badges/ $out/conf/
+    cp -r assets/ $out/conf/
   '';
 }

@@ -52,7 +52,15 @@ async fn update_template(appstate: &Arc<AppState>) -> SpaceApi {
     let door = get_door(&appstate.database, &appstate.config.sensors.door).await;
 
     let mut template = appstate.template.clone();
-    template.state = door;
+
+    if let Some(ref mut state) = template.state {
+        if let Some(d) = door {
+            state.open = d.open;
+            state.lastchange = d.lastchange;
+        }
+    } else {
+        template.state = door;
+    }
 
     if !temp.is_empty() || !humid.is_empty() || !co2.is_empty() {
         template.sensors = Some(Sensors {
@@ -98,5 +106,6 @@ async fn get_door(
         .map(|value| spaceapi::State {
             open: Some(value.value > 0.5),
             lastchange: Some(value.time.timestamp() as u64),
+            ..Default::default()
         })
 }
