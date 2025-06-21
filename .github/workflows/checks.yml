@@ -9,22 +9,42 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  format:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install prerequisites
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends --yes jq libxml2-utils cargo rustfmt
+      - name: Run fmt
+        run: cargo fmt --all -- --check
+      - name: Check file formatting
+        run: |
+          bash format.sh
+          git diff --exit-code
 
+  build-native:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Install prerequisites
-      run: sudo apt-get update && sudo apt-get install -y jq libxml2-utils cargo rust-clippy rustfmt
+      run: sudo apt-get update && sudo apt-get install --no-install-recommends --yes cargo rust-clippy rustfmt
     - name: Run build
       run: cargo build
     - name: Run tests
       run: cargo test
-    - name: Run fmt
-      run: cargo fmt --all -- --check
     - name: Run clippy
       run: cargo clippy --all-targets
-    - name: Check file formatting
-      run: |
-        bash format.sh
-        git diff --exit-code
+  
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build docker container
+        run: docker build -f Dockerfile .
+  
+  build-nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build nix package
+        run: docker build -f Dockerfile.nixbuild .

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7-labs
 FROM rust:slim-bookworm AS builder
 WORKDIR /usr/src/k4status
 ENV TARGET x86_64-unknown-linux-musl
