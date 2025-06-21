@@ -1,5 +1,4 @@
 use axum::{extract::State, Json};
-use chrono::{DateTime, Utc};
 use num_traits::AsPrimitive;
 use std::sync::Arc;
 use std::vec::Vec;
@@ -9,40 +8,10 @@ use crate::{spaceapi, spaceapi::Sensor, spaceapi::Sensors, spaceapi::SpaceApi};
 
 use crate::server::router::AppState;
 
-pub struct StateStatus {
-    pub status: SpaceApi,
-    pub last_update: DateTime<Utc>,
-}
-
-impl StateStatus {
-    pub fn new(status: SpaceApi) -> Self {
-        Self {
-            status,
-            last_update: DateTime::<Utc>::MIN_UTC,
-        }
-    }
-}
-
 pub async fn get_status(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
     log::info!("GET /status");
 
     Json(update_template(&state).await)
-}
-
-pub async fn get_status_cache(State(state): State<Arc<AppState>>) -> Json<SpaceApi> {
-    log::info!("GET /status");
-
-    let status = {
-        let mut current = state.state_status.lock().await;
-        let now = Utc::now();
-        if (now - state.config.cache_time.status) > current.last_update {
-            current.last_update = now;
-            current.status = update_template(&state).await;
-        }
-        current.status.clone()
-    };
-
-    Json(status)
 }
 
 async fn update_template(appstate: &Arc<AppState>) -> SpaceApi {

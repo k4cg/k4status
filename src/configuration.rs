@@ -7,7 +7,6 @@ pub struct Configuration {
     pub database: Database,
     pub server: Server,
     pub sensors: Sensors,
-    pub cache_time: CacheTime,
 }
 
 #[derive(Deserialize, Clone)]
@@ -58,17 +57,6 @@ pub struct SensorSettings {
 pub struct SensorIdentification {
     pub entity: String,
     pub location: String,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct CacheTime {
-    #[serde(deserialize_with = "parse_timedelta")]
-    pub status: chrono::TimeDelta,
-    #[serde(deserialize_with = "parse_timedelta")]
-    pub health: chrono::TimeDelta,
-    #[serde(deserialize_with = "parse_timedelta")]
-    pub badge: chrono::TimeDelta,
 }
 
 fn parse_timedelta<'de, D>(deserializer: D) -> Result<chrono::TimeDelta, D::Error>

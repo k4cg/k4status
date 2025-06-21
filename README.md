@@ -68,11 +68,6 @@ The configuration takes place within the file `config.json`:
             "unit": "ppm", // Unit of measurement within database
             "validity": 0 // Period of validity in seconds, set to 0 to disable check
         }
-    },
-    "cache_time": {
-        "status": 0, // Time in seconds to cache values for /status endpoint, set to 0 to disable caching
-        "health": 0, // Time in seconds to cache values for /health endpoint, set to 0 to disable caching
-        "badge": 0 // Time in seconds to cache values for /badge endpoint, set to 0 to disable caching
     }
 }
 ```
