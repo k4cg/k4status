@@ -20,12 +20,11 @@ const FILE_TEMPLATE: &str = "template.json";
 const DIR_BADGES: &str = "assets/badges/";
 const DIR_ICONS: &str = "assets/icons/";
 
-async fn read_file<T>(fname: &str) -> Result<T, StatusError>
+fn read_file<T>(fname: &str) -> Result<T, StatusError>
 where
     T: for<'a> Deserialize<'a>,
 {
-    tokio::fs::read_to_string(fname)
-        .await
+    std::fs::read_to_string(fname)
         .map(|s| serde_json::from_str(&s))
         .map_err(|e| StatusError::File(format!("Failed to read {} ({})", fname, e)))?
         .map_err(|e| StatusError::File(format!("Failed to parse {} ({})", fname, e)))
@@ -63,16 +62,16 @@ async fn app() -> Result<(), StatusError> {
     let args = Args::parse();
 
     log::info!("Parse configuration ({})", args.config);
-    let config: Configuration = read_file(&args.config).await?;
+    let config: Configuration = read_file(&args.config)?;
 
     log::info!("Parse status template ({})", args.template);
-    let template: SpaceApi = read_file(&args.template).await?;
+    let template: SpaceApi = read_file(&args.template)?;
 
     log::info!("Read badges ({})", args.badges);
-    let badges = Badges::new(&args.badges).await?;
+    let badges = Badges::new(&args.badges)?;
 
     log::info!("Read icons ({})", args.icons);
-    let icons = Icons::new(&args.icons).await?;
+    let icons = Icons::new(&args.icons)?;
 
     log::info!("Initialize database connection");
     let database = Database::new(&config.database);
@@ -96,23 +95,23 @@ async fn main() -> Result<(), StatusError> {
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn parse_config() {
-        read_file::<Configuration>(FILE_CONFIG).await.unwrap();
+    #[test]
+    fn parse_config() {
+        read_file::<Configuration>(FILE_CONFIG).unwrap();
     }
 
-    #[tokio::test]
-    async fn parse_template() {
-        read_file::<SpaceApi>(FILE_TEMPLATE).await.unwrap();
+    #[test]
+    fn parse_template() {
+        read_file::<SpaceApi>(FILE_TEMPLATE).unwrap();
     }
 
-    #[tokio::test]
-    async fn read_badges() {
-        Badges::new(DIR_BADGES).await.unwrap();
+    #[test]
+    fn read_badges() {
+        Badges::new(DIR_BADGES).unwrap();
     }
 
-    #[tokio::test]
-    async fn read_icons() {
-        Icons::new(DIR_ICONS).await.unwrap();
+    #[test]
+    fn read_icons() {
+        Icons::new(DIR_ICONS).unwrap();
     }
 }
