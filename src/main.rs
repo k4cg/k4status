@@ -105,4 +105,14 @@ mod tests {
     async fn parse_template() {
         read_file::<SpaceApi>(FILE_TEMPLATE).await.unwrap();
     }
+
+    #[tokio::test]
+    async fn read_badges() {
+        Badges::new(DIR_BADGES).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn read_icons() {
+        Icons::new(DIR_ICONS).await.unwrap();
+    }
 }
