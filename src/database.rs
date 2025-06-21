@@ -1,4 +1,4 @@
-use crate::{configuration, StatusError};
+use crate::{StatusError, configuration};
 use chrono::{DateTime, TimeDelta, Utc};
 use serde::Deserialize;
 

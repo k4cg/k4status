@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{body::Body, extract::State, http::header, http::StatusCode, response::Response};
+use axum::{body::Body, extract::State, http::StatusCode, http::header, response::Response};
 
 use crate::server::router::AppState;
 

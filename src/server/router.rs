@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::badge::Badges;
 use crate::icon::Icons;
 use crate::spaceapi::SpaceApi;
-use crate::{configuration::Configuration, database::Database, StatusError};
+use crate::{StatusError, configuration::Configuration, database::Database};
 
 use crate::server::routes::*;
 

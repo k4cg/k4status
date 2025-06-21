@@ -1,4 +1,4 @@
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use num_traits::AsPrimitive;
 use std::sync::Arc;
 use std::vec::Vec;
