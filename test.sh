@@ -44,6 +44,8 @@ URL="http://localhost:3000"
 URL_HEALTH="${URL}/health"
 URL_STATUS="${URL}/status"
 URL_BADGE="${URL}/badge"
+URL_ICON_OPEN="${URL}/icon/open"
+URL_ICON_CLOSED="${URL}/icon/closed"
 
 # Overall result
 RESULT=true
@@ -114,8 +116,8 @@ fi
 
 # Test /icon
 if [ $RESULT = true ] ; then
-    curl -s -f http://localhost:3000/icon/open --output /dev/null || err "Icon 'open' missing"
-    curl -s -f http://localhost:3000/icon/closed --output /dev/null || err "Icon 'closed' missing"
+    curl -s -f $URL_ICON_OPEN -o /dev/null || err "Icon 'open' missing"
+    curl -s -f $URL_ICON_CLOSED -o /dev/null || err "Icon 'closed' missing"
 fi
 
 # Cleanup
