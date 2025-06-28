@@ -77,7 +77,7 @@ async fn app() -> Result<(), StatusError> {
     let database = Database::new(&config.database);
 
     log::info!("Start server");
-    server::run(&config, &database, &template, &badges, &icons).await
+    server::run(config, database, template, badges, icons).await
 }
 
 #[tokio::main]

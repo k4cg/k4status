@@ -33,5 +33,5 @@ pub async fn get_badge(State(state): State<Arc<AppState>>) -> Response {
         .header(header::CONTENT_TYPE, "image/svg+xml")
         .header(header::CACHE_CONTROL, "no-cache")
         .body(Body::from(badge))
-        .unwrap()
+        .expect("Failed to build response")
 }

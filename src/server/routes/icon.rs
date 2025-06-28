@@ -10,7 +10,7 @@ fn build_response(badge: Image) -> Response {
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "image/png")
         .body(Body::from(badge))
-        .unwrap()
+        .expect("Failed to build response")
 }
 
 pub async fn get_icon_open(State(state): State<Arc<AppState>>) -> Response {

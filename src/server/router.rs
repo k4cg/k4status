@@ -17,29 +17,24 @@ pub struct AppState {
 }
 
 pub async fn run(
-    config: &Configuration,
-    database: &Database,
-    status: &SpaceApi,
-    badges: &Badges,
-    icons: &Icons,
+    config: Configuration,
+    database: Database,
+    template: SpaceApi,
+    badges: Badges,
+    icons: Icons,
 ) -> Result<(), StatusError> {
     let state = Arc::new(AppState {
-        config: config.clone(),
-        database: database.clone(),
-        template: status.clone(),
-        badges: badges.clone(),
-        icons: icons.clone(),
+        config,
+        database,
+        template,
+        badges,
+        icons,
     });
 
-    let app = axum::Router::new()
-        .route("/status", axum::routing::get(get_status))
-        .route("/health", axum::routing::get(get_health))
-        .route("/badge", axum::routing::get(get_badge))
-        .route("/icon/open", axum::routing::get(get_icon_open))
-        .route("/icon/closed", axum::routing::get(get_icon_closed))
-        .with_state(state);
-
-    let serve_str = format!("{}:{}", config.server.hostname, config.server.port);
+    let serve_str = format!(
+        "{}:{}",
+        state.config.server.hostname, state.config.server.port
+    );
 
     let listener = tokio::net::TcpListener::bind(&serve_str)
         .await
@@ -49,6 +44,14 @@ pub async fn run(
                 serve_str, e
             ))
         })?;
+
+    let app = axum::Router::new()
+        .route("/status", axum::routing::get(get_status))
+        .route("/health", axum::routing::get(get_health))
+        .route("/badge", axum::routing::get(get_badge))
+        .route("/icon/open", axum::routing::get(get_icon_open))
+        .route("/icon/closed", axum::routing::get(get_icon_closed))
+        .with_state(state);
 
     axum::serve(listener, app)
         .await
