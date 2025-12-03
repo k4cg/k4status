@@ -1,7 +1,7 @@
 let pkgs = import <nixpkgs> { };
 in pkgs.rustPlatform.buildRustPackage rec {
   pname = "k4status";
-  version = "1.5.1";
+  version = "1.5.2";
   cargoLock = {
     lockFile = ./Cargo.lock;
   };
