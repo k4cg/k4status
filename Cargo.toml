@@ -11,13 +11,13 @@ keywords = ["spaceapi", "hackspace", "k4cg"]
 
 [dependencies]
 influxdb = "0.7.2"
-serde = "1.0.219"
-serde_json = "1.0.140"
-axum = "0.8.4"
-tokio = { version = "1.45.1", features = ["rt-multi-thread"] }
-chrono = "0.4.41"
-thiserror = "2.0.12"
-log = "0.4.27"
-simple_logger = { version = "5.0.0", default-features = false, features = ["timestamps"] }
-clap = { version = "4.5.40", features = ["derive", "env"] }
+serde = "1.0.228"
+serde_json = "1.0.145"
+axum = "0.8.7"
+tokio = { version = "1.48.0", features = ["rt-multi-thread"] }
+chrono = "0.4.42"
+thiserror = "2.0.17"
+log = "0.4.29"
+simple_logger = { version = "5.1.0", default-features = false, features = ["timestamps"] }
+clap = { version = "4.5.53", features = ["derive", "env"] }
 num-traits = "0.2.19"
