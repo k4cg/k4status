@@ -34,14 +34,7 @@ jobs:
       run: cargo test
     - name: Run clippy
       run: cargo clippy --all-targets
-  
-  build-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build docker container
-        run: docker build -f Dockerfile .
-  
+
   build-nix:
     runs-on: ubuntu-latest
     steps:
