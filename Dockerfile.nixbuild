@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7-labs
 
 # This Dockerfile is used to check that the project currently builds on our target machine.
-# Therefore, the versions of the nix docker image and the nix channel are set to fixed versions.
+# Therefore, the versions of the nix channel is set to a fixed versions.
 
 FROM nixos/nix:latest
 WORKDIR /tmp/k4status
