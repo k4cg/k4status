@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -e
+
+command -v jq > /dev/null
+command -v xmllint > /dev/null
+
+
 result=0
 
 json=("template.json" "config.json")

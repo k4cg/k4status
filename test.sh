@@ -9,7 +9,13 @@
 # Note, that this script assumes the app to be configured to listen on localhost:3000.
 
 # Quit on error
-set -e
+set -eu
+
+# Check for required tools
+command -v curl > /dev/null
+command -v xmllint > /dev/null
+command -v jq > /dev/null
+command -v jsonschema > /dev/null
 
 # Cleanup, kill app
 function cleanup()
