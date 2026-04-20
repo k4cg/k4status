@@ -6,7 +6,7 @@
 FROM nixos/nix:latest
 WORKDIR /tmp/k4status
 RUN nix-channel --remove nixpkgs &&\
-    nix-channel --add https://nixos.org/channels/nixos-25.11 nixpkgs &&\
+    nix-channel --add https://nixos.org/channels/nixos-26.05 nixpkgs &&\
     nix-channel --update
 COPY --exclude=target/ . .
 RUN nix-build default.nix

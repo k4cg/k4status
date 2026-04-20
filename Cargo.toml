@@ -10,14 +10,14 @@ description = "Space API for K4CG"
 keywords = ["spaceapi", "hackspace", "k4cg"]
 
 [dependencies]
-influxdb = "0.7.2"
-serde = "1.0.228"
-serde_json = "1.0.149"
-axum = "0.8.8"
-tokio = { version = "1.49.0", features = ["rt-multi-thread"] }
-chrono = "0.4.43"
+influxdb = "0.8.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+axum = "0.8.9"
+tokio = { version = "1.52.3", features = ["rt-multi-thread"] }
+chrono = { version = "0.4.45", features = ["serde"] }
 thiserror = "2.0.18"
-log = "0.4.29"
-simple_logger = { version = "5.1.0", default-features = false, features = ["timestamps"] }
-clap = { version = "4.5.58", features = ["derive", "env"] }
+log = "0.4.32"
+simple_logger = { version = "5.2.0", default-features = false, features = ["timestamps"] }
+clap = { version = "4.6.1", features = ["derive", "env"] }
 num-traits = "0.2.19"
